@@ -4,12 +4,12 @@ HearthMonitor
 A monitoring tool for the game HearthStone.
 
 Concept
---------
+-------
 
 The concept of HearthMonitor is to read a logfile from HearthStone and offer the ability to analyze that logfile, it also has the ability to work in real-time. For the real-time visualization there is an Android app that will visualize data in real-time.
 
 Structure
---------
+---------
 
 HearthMonitor is split up in multiple components, which can all be found in their own libraries.
 
@@ -17,3 +17,8 @@ HearthMonitor is split up in multiple components, which can all be found in thei
 2. **The log reader implementation**: A log reader implementation that can be used to read logfiles with. It can be found at https://github.com/skiwi2/HearthMonitor-LogReader.
 3. **The Android app**: An Android app to visualize data from the logfiles. It can be found at https://github.com/skiwi2/HearthMonitor-AndroidApp.
 4. **The HearthMonitor application**: The HearthMonitor application itself can be found in this repository. It will read the logfiles and offer ways to communicate with the apps.
+
+Documentation
+-------------
+
+- [User Requirements Document](https://github.com/skiwi2/HearthMonitor/wiki/User-Requirements-Document)
