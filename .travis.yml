@@ -1,0 +1,29 @@
+language: java
+
+jdk:
+  - oraclejdk8
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install oracle-java8-installer
+
+notifications:
+  webhooks:
+    urls:
+      - secure: "CnwAQljy2Hf4vvUmmMG4+6jvEGdCFeTp+XwdsPjARwtScRXhHbb3KM8fQQdxgpKDQRArpGSHajTJ2KPZqGqiOUR8Ar3UNFU6Et0IKbbvzt3Njr4ephJRamOrOF3UZdh9lOGVBSWVYCnwavru/5naCFaOwomQA6q1fD02QgWiHRA="
+    on_success: always
+    on_failure: always
+    on_start: false
+
+deploy:
+  provider: releases
+  api-key:
+    secure: "HXpJI+ar0ZXEE89JWob76Gqaq5s7unFkdKAu3hojMUurzpzEwjy7uZ732eFBA9PR3CYGPwM3SQgbq8Lfi6Uztb/eGUYcioflFUgHajSDuL1M33myHbYDaf/ZuKahEQYMkOTR1ab3pZTuX4WIE/xMF/rhou8oPMzXHRM5W+hb8QI="
+  file:
+    - "build/libs/hearthmonitor-0.1.jar"
+  skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
+    #must remain on all_branches: true together with tags: true due to the following bug: https://github.com/travis-ci/travis-ci/issues/1675
+    #ideal situation would be to change it such that it only builds a release on the master branch on tag push
