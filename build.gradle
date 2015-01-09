@@ -3,7 +3,7 @@ apply plugin: 'maven'
 
 sourceCompatibility = 1.8
 
-group = 'com.skiwi'
+group = 'com.github.skiwi2'
 version = '0.1-SNAPSHOT'
 
 repositories {
