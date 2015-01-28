@@ -11,9 +11,13 @@ repositories {
     maven {
         url 'https://oss.sonatype.org/content/groups/public/'
     }
+    maven {
+        url 'http://zomis.net/maven/'
+    }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile group: 'com.github.skiwi2', name: 'hearthmonitor-logreader', version: '0.1-SNAPSHOT'
+    compile group: 'com.cardshifter', name: 'cardshifter-modapi', version: '0.5-SNAPSHOT'
 }
