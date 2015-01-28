@@ -39,7 +39,13 @@ public abstract class AbstractCommand implements Command {
         }
     }
 
+    /**
+     * Executes this command.
+     */
     protected abstract void executeImpl();
 
+    /**
+     * Undoes the execution of this command.
+     */
     protected abstract void undoImpl();
 }
