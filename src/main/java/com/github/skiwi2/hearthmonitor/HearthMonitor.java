@@ -53,7 +53,7 @@ public class HearthMonitor {
                     continue;
                 }
                 if (logEntry instanceof CreateGameLogEntry) {
-                    ECSGame initialGame = createInitialGame(logReader, (CreateGameLogEntry)logEntry);
+                    ECSGame initialGame = createInitialGame((CreateGameLogEntry)logEntry);
                     List<Command> commands = new ArrayList<>();
                     Game game = new Game(initialGame, commands);
                     games.add(game);
@@ -65,7 +65,7 @@ public class HearthMonitor {
         }
     }
 
-    private ECSGame createInitialGame(final LogReader logReader, final CreateGameLogEntry createGameLogEntry) {
+    private ECSGame createInitialGame(final CreateGameLogEntry createGameLogEntry) {
         HearthStoneMod hearthStoneMod = new HearthStoneMod();
         ECSGame initialGame = new ECSGame();
         hearthStoneMod.setupGame(initialGame);
