@@ -8,7 +8,6 @@ import com.github.skiwi2.hearthmonitor.logapi.LogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.CreateGameLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.CreateGameLogEntry.PlayerLogEntry;
 import com.github.skiwi2.hearthmonitor.logreader.CloseableLogReader;
-import com.github.skiwi2.hearthmonitor.logreader.LogReader;
 import com.github.skiwi2.hearthmonitor.logreader.NotReadableException;
 import com.github.skiwi2.hearthmonitor.logreader.hearthstone.LogLineUtils;
 import com.github.skiwi2.hearthmonitor.logreader.logreaders.FileLogReader;
@@ -31,17 +30,20 @@ import java.util.function.Supplier;
  * @author Frank van Heeswijk
  */
 public class HearthMonitor {
-    private final Path logPath;
+    private final Path logFile;
 
-    private final List<Game> games = new ArrayList<>();
-
-    private HearthMonitor(final Path logPath) {
-        this.logPath = Objects.requireNonNull(logPath, "logPath");
+    private HearthMonitor(final Path logFile) {
+        this.logFile = Objects.requireNonNull(logFile, "logFile");
     }
 
     private void init() throws Exception {
+        List<Game> games = readGamesFromLog(logFile);
+    }
+
+    private static List<Game> readGamesFromLog(final Path logFile) throws Exception {
+        List<Game> games = new ArrayList<>();
         try (CloseableLogReader logReader = new FileLogReader(
-            Files.newBufferedReader(logPath, StandardCharsets.UTF_8),
+            Files.newBufferedReader(logFile, StandardCharsets.UTF_8),
             EntryParsers.getHearthStoneEntryParsers(),
             LogLineUtils::isFromNamedLogger)
         ) {
@@ -57,12 +59,12 @@ public class HearthMonitor {
                     List<Command> commands = new ArrayList<>();
                     Game game = new Game(initialGame, commands);
                     games.add(game);
-                }
-                else {
+                } else {
                     //unexpected, drop entry
                 }
             }
         }
+        return games;
     }
 
     private static ECSGame createInitialGame(final CreateGameLogEntry createGameLogEntry) {
