@@ -65,7 +65,7 @@ public class HearthMonitor {
         }
     }
 
-    private ECSGame createInitialGame(final CreateGameLogEntry createGameLogEntry) {
+    private static ECSGame createInitialGame(final CreateGameLogEntry createGameLogEntry) {
         HearthStoneMod hearthStoneMod = new HearthStoneMod();
         ECSGame initialGame = new ECSGame();
         hearthStoneMod.setupGame(initialGame);
@@ -80,7 +80,7 @@ public class HearthMonitor {
         return initialGame;
     }
 
-    private void convertPlayerLogEntryToEntity(final Supplier<Entity> newEntitySupplier, final PlayerLogEntry playerLogEntry) {
+    private static void convertPlayerLogEntryToEntity(final Supplier<Entity> newEntitySupplier, final PlayerLogEntry playerLogEntry) {
         Entity entity = newEntitySupplier.get();
         String playerId = playerLogEntry.getTagValue("PLAYER_ID");
         PlayerComponent playerComponent = new PlayerComponent(Integer.parseInt(playerId), "PlayerID " + playerId);
