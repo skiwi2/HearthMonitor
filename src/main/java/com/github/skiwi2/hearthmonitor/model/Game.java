@@ -45,4 +45,15 @@ public final class Game {
     public List<Command> getCommands() {
         return new ArrayList<>(commands);
     }
+
+    /**
+     * Appends the command to the list of commands.
+     *
+     * @param command   The command to add
+     * @throws java.lang.NullPointerException   If command is null.
+     */
+    public void addCommand(final Command command) {
+        Objects.requireNonNull(command, "command");
+        commands.add(command);
+    }
 }
