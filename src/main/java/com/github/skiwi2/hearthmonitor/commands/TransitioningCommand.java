@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 public class TransitioningCommand extends AbstractCommand {
     private final ECSGame ecsGame;
-    private final TransitioningLogEntry fullEntityLogEntry;
+    private final TransitioningLogEntry transitioningLogEntry;
 
     /**
      * Constructs a new TransitioningCommand instance.
@@ -23,7 +23,7 @@ public class TransitioningCommand extends AbstractCommand {
      */
     public TransitioningCommand(final ECSGame ecsGame, final TransitioningLogEntry transitioningLogEntry) {
         this.ecsGame = Objects.requireNonNull(ecsGame, "ecsGame");
-        this.fullEntityLogEntry = Objects.requireNonNull(transitioningLogEntry, "transitioningLogEntry");
+        this.transitioningLogEntry = Objects.requireNonNull(transitioningLogEntry, "transitioningLogEntry");
     }
 
     @Override
