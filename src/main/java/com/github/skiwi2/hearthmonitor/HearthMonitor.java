@@ -1,16 +1,20 @@
 package com.github.skiwi2.hearthmonitor;
 
+import com.cardshifter.modapi.attributes.AttributeRetriever;
+import com.cardshifter.modapi.attributes.ECSAttributeMap;
 import com.cardshifter.modapi.base.ECSGame;
 import com.cardshifter.modapi.base.Entity;
 import com.cardshifter.modapi.base.PlayerComponent;
+import com.cardshifter.modapi.resources.ECSResourceMap;
+import com.cardshifter.modapi.resources.ResourceRetriever;
 import com.github.skiwi2.hearthmonitor.commands.Command;
 import com.github.skiwi2.hearthmonitor.commands.FullEntityCommand;
 import com.github.skiwi2.hearthmonitor.commands.TagChangeCommand;
 import com.github.skiwi2.hearthmonitor.commands.TransitioningCommand;
 import com.github.skiwi2.hearthmonitor.logapi.LogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.CreateGameLogEntry;
-import com.github.skiwi2.hearthmonitor.logapi.power.CreateGameLogEntry.PlayerLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.FullEntityLogEntry;
+import com.github.skiwi2.hearthmonitor.logapi.power.PlayerLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.TagChangeLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.zone.TransitioningLogEntry;
 import com.github.skiwi2.hearthmonitor.logreader.CloseableLogReader;
@@ -19,6 +23,8 @@ import com.github.skiwi2.hearthmonitor.logreader.hearthstone.LogLineUtils;
 import com.github.skiwi2.hearthmonitor.logreader.logreaders.FileLogReader;
 import com.github.skiwi2.hearthmonitor.model.Game;
 import com.github.skiwi2.hearthmonitor.model.HearthStoneMod;
+import com.github.skiwi2.hearthmonitor.model.HearthStoneMod.HearthStoneAttribute;
+import com.github.skiwi2.hearthmonitor.model.HearthStoneMod.HearthStoneResource;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -32,6 +38,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Main application.

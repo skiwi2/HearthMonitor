@@ -22,10 +22,10 @@ public final class EntryParsers {
 
     private static final Set<EntryParser> HEARTHSTONE_ENTRY_PARSERS =
         new HashSet<>(Arrays.asList(
-            new CreateGameEntryParser(),
-            new FullEntityEntryParser(),
-            new TagChangeEntryParser(),
-            new TransitioningEntryParser()
+            CreateGameEntryParser.createForIndentation(0),
+            FullEntityEntryParser.createForIndentation(0),
+            TagChangeEntryParser.createForIndentation(0),
+            TransitioningEntryParser.createForIndentation(0)
         ));
 
     public static Set<EntryParser> getHearthStoneEntryParsers() {

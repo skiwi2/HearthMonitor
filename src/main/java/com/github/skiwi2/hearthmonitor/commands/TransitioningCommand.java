@@ -1,7 +1,17 @@
 package com.github.skiwi2.hearthmonitor.commands;
 
+import com.cardshifter.modapi.attributes.AttributeRetriever;
+import com.cardshifter.modapi.attributes.ECSAttributeMap;
 import com.cardshifter.modapi.base.ECSGame;
+import com.cardshifter.modapi.base.Entity;
+import com.cardshifter.modapi.resources.ECSResourceMap;
+import com.cardshifter.modapi.resources.ResourceRetriever;
+import com.github.skiwi2.hearthmonitor.logapi.power.CardEntityLogObject;
+import com.github.skiwi2.hearthmonitor.logapi.power.EntityLogObject;
+import com.github.skiwi2.hearthmonitor.logapi.power.PlayerEntityLogObject;
 import com.github.skiwi2.hearthmonitor.logapi.zone.TransitioningLogEntry;
+import com.github.skiwi2.hearthmonitor.model.HearthStoneMod.HearthStoneAttribute;
+import com.github.skiwi2.hearthmonitor.model.HearthStoneMod.HearthStoneResource;
 
 import java.util.Objects;
 
@@ -13,6 +23,8 @@ import java.util.Objects;
 public class TransitioningCommand extends AbstractCommand {
     private final ECSGame ecsGame;
     private final TransitioningLogEntry transitioningLogEntry;
+
+    private String oldZone;
 
     /**
      * Constructs a new TransitioningCommand instance.
@@ -28,11 +40,45 @@ public class TransitioningCommand extends AbstractCommand {
 
     @Override
     protected void executeImpl() {
-
+        ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneResource.ENTITY_ID);
+        Entity logEntity = ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
+            .stream()
+            .filter(entity -> {
+                int entityId = entityIdRetriever.getFor(entity);
+                EntityLogObject entityLogObject = transitioningLogEntry.getEntity();
+                if (entityLogObject instanceof PlayerEntityLogObject) {
+                    return false;
+                }
+                CardEntityLogObject cardEntityLogObject = (CardEntityLogObject)entityLogObject;
+                int transitioningEntityId = Integer.parseInt(cardEntityLogObject.getId());
+                return (entityId == transitioningEntityId);
+            })
+            .findFirst().orElse(null);
+        if (logEntity == null) {
+            return; //TODO fix when ActionStartLogEntry entries are getting processed
+        }
+        AttributeRetriever attributeRetriever = AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE);
+        oldZone = attributeRetriever.getFor(logEntity);
+        attributeRetriever.attrFor(logEntity).set(transitioningLogEntry.getTargetZone());
     }
 
     @Override
     protected void undoImpl() {
-
+        ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneResource.ENTITY_ID);
+        Entity logEntity = ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
+            .stream()
+            .filter(entity -> {
+                int entityId = entityIdRetriever.getFor(entity);
+                EntityLogObject entityLogObject = transitioningLogEntry.getEntity();
+                if (entityLogObject instanceof PlayerEntityLogObject) {
+                    return false;
+                }
+                CardEntityLogObject cardEntityLogObject = (CardEntityLogObject)entityLogObject;
+                int transitioningEntityId = Integer.parseInt(cardEntityLogObject.getId());
+                return (entityId == transitioningEntityId);
+            })
+            .findFirst().get();
+        AttributeRetriever attributeRetriever = AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE);
+        attributeRetriever.attrFor(logEntity).set(oldZone);
     }
 }
