@@ -9,6 +9,7 @@ import com.github.skiwi2.hearthmonitor.logreader.hearthstone.zone.TransitioningE
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility class to get default entry parser sets.
@@ -20,13 +21,21 @@ public final class EntryParsers {
         throw new UnsupportedOperationException();
     }
 
-    private static final Set<EntryParser> HEARTHSTONE_ENTRY_PARSERS =
+    private static final Set<EntryParser.Factory<? extends EntryParser>> HEARTHSTONE_ENTRY_PARSER_FACTORIES =
         new HashSet<>(Arrays.asList(
-            CreateGameEntryParser.createForIndentation(0),
-            FullEntityEntryParser.createForIndentation(0),
-            TagChangeEntryParser.createForIndentation(0),
-            TransitioningEntryParser.createForIndentation(0)
+            CreateGameEntryParser.createFactory(),
+            FullEntityEntryParser.createFactory(),
+            TagChangeEntryParser.createFactory(),
+            TransitioningEntryParser.createFactory()
         ));
+
+    private static final Set<EntryParser> HEARTHSTONE_ENTRY_PARSERS = HEARTHSTONE_ENTRY_PARSER_FACTORIES.stream()
+        .map(factory -> factory.create(0))
+        .collect(Collectors.<EntryParser>toSet());
+
+    public static Set<EntryParser.Factory<? extends EntryParser>> getHearthstoneEntryParserFactories() {
+        return new HashSet<>(HEARTHSTONE_ENTRY_PARSER_FACTORIES);
+    }
 
     public static Set<EntryParser> getHearthStoneEntryParsers() {
         return new HashSet<>(HEARTHSTONE_ENTRY_PARSERS);
