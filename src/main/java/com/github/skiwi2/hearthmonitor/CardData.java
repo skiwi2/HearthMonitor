@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Frank van Heeswijk
@@ -24,10 +25,12 @@ public class CardData {
 
     private final String id;
     private final String name;
+    private final Optional<String> playerClass;
 
-    public CardData(final String id, final String name) {
+    public CardData(final String id, final String name, final Optional<String> playerClass) {
         this.id = Objects.requireNonNull(id, "id");
         this.name = Objects.requireNonNull(name, "name");
+        this.playerClass = Objects.requireNonNull(playerClass, "playerClass");
     }
 
     public String getId() {
@@ -36,6 +39,10 @@ public class CardData {
 
     public String getName() {
         return name;
+    }
+
+    public Optional<String> getPlayerClass() {
+        return playerClass;
     }
 
     public static CardData getForCardId(final String cardId) {

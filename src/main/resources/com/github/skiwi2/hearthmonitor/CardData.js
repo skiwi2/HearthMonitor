@@ -3,6 +3,7 @@
  */
 
 var CardData = Java.type("com.github.skiwi2.hearthmonitor.CardData");
+var Optional = Java.type("java.util.Optional");
 var setList;
 var allSets;
 
@@ -20,7 +21,7 @@ function getCardData(cardId) {
         for (var j = 0; j < allSets[set].length; j++) {
             var card = allSets[set][j];
             if (card.id == cardId) {
-                return new CardData(card.id, card.name);
+                return new CardData(card.id, card.name, Optional.ofNullable(card.playerClass));
             }
         }
     }

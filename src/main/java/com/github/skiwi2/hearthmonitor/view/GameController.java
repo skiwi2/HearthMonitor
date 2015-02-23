@@ -152,7 +152,7 @@ public class GameController implements Initializable {
             .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), controllerType + " PLAY (Hero)"))
             .forEach(entity -> {
                 int controller = ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getFor(entity);
-                box.getChildren().add(new Label("Hero " + controller + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
+                box.getChildren().add(new Label("Hero " + controller + System.lineSeparator() + getPlayerClass(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
             });
 
         ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
@@ -201,6 +201,13 @@ public class GameController implements Initializable {
             return "???";
         }
         return entity.getComponent(CardDataComponent.class).getCardData().getName();
+    }
+
+    private static String getPlayerClass(final Entity entity) {
+        if (!entity.hasComponent(CardDataComponent.class)) {
+            return "???";
+        }
+        return entity.getComponent(CardDataComponent.class).getCardData().getPlayerClass().orElse("???");
     }
 
     private static String getAttackAndHitPointsData(final Entity entity) {
