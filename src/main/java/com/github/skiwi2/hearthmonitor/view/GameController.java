@@ -7,6 +7,7 @@ import com.cardshifter.modapi.base.Entity;
 import com.cardshifter.modapi.resources.ECSResourceMap;
 import com.cardshifter.modapi.resources.ResourceRetriever;
 import com.github.skiwi2.hearthmonitor.commands.Command;
+import com.github.skiwi2.hearthmonitor.model.CardDataComponent;
 import com.github.skiwi2.hearthmonitor.model.Game;
 import com.github.skiwi2.hearthmonitor.model.HearthStoneMod.HearthStoneAttribute;
 import com.github.skiwi2.hearthmonitor.model.HearthStoneMod.HearthStoneResource;
@@ -158,7 +159,7 @@ public class GameController implements Initializable {
             .stream()
             .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), controllerType + " PLAY (Hero Power)"))
             .forEach(entity -> {
-                box.getChildren().add(new Label("???" + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
+                box.getChildren().add(new Label(getName(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
             });
 
         Long deckRemainingSize = ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
@@ -178,7 +179,7 @@ public class GameController implements Initializable {
             .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), controllerType + " HAND"))
             .sorted(Comparator.comparingInt(entity -> ResourceRetriever.forResource(HearthStoneResource.ZONE_POSITION).getOrDefault(entity, 0)))
             .forEach(entity -> {
-                box.getChildren().add(new Label("???" + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
+                box.getChildren().add(new Label(getName(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
             });
 
     }
@@ -191,8 +192,15 @@ public class GameController implements Initializable {
             .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), controllerType + " PLAY"))
             .sorted(Comparator.comparingInt(entity -> ResourceRetriever.forResource(HearthStoneResource.ZONE_POSITION).getOrDefault(entity, 0)))
             .forEach(entity -> {
-                box.getChildren().add(new Label("???" + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
+                box.getChildren().add(new Label(getName(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
             });
+    }
+
+    private static String getName(final Entity entity) {
+        if (!entity.hasComponent(CardDataComponent.class)) {
+            return "???";
+        }
+        return entity.getComponent(CardDataComponent.class).getCardData().getName();
     }
 
     private static String getAttackAndHitPointsData(final Entity entity) {

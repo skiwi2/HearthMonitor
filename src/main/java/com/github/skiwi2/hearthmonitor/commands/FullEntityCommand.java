@@ -4,7 +4,9 @@ import com.cardshifter.modapi.attributes.ECSAttributeMap;
 import com.cardshifter.modapi.base.ECSGame;
 import com.cardshifter.modapi.base.Entity;
 import com.cardshifter.modapi.resources.ECSResourceMap;
+import com.github.skiwi2.hearthmonitor.CardData;
 import com.github.skiwi2.hearthmonitor.logapi.power.FullEntityLogEntry;
+import com.github.skiwi2.hearthmonitor.model.CardDataComponent;
 import com.github.skiwi2.hearthmonitor.model.HearthStoneMod;
 
 import java.util.Objects;
@@ -37,14 +39,15 @@ public class FullEntityCommand extends AbstractCommand {
         newEntity = ecsGame.newEntity();
         ECSResourceMap ecsResourceMap = ECSResourceMap.createFor(newEntity);
         ECSAttributeMap ecsAttributeMap = ECSAttributeMap.createFor(newEntity);
+        if (!fullEntityLogEntry.getCardId().isEmpty()) {
+            newEntity.addComponent(new CardDataComponent(CardData.getForCardId(fullEntityLogEntry.getCardId())));
+        }
         fullEntityLogEntry.getTagValues().forEach((tag, value) -> {
             if (HearthStoneMod.isHearthStoneResource(tag)) {
                 ecsResourceMap.set(HearthStoneMod.getHearthStoneResource(tag), Integer.parseInt(value));    //TODO catch NFE for robustness?
-            }
-            else if (HearthStoneMod.isHearthStoneAttribute(tag)) {
+            } else if (HearthStoneMod.isHearthStoneAttribute(tag)) {
                 ecsAttributeMap.set(HearthStoneMod.getHearthStoneAttribute(tag), value);
-            }
-            else {
+            } else {
                 System.out.println("Tag " + tag + " matches neither a resource nor an attribute.");
             }
         });
