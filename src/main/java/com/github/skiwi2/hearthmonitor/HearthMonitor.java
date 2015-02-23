@@ -1,12 +1,8 @@
 package com.github.skiwi2.hearthmonitor;
 
-import com.cardshifter.modapi.attributes.AttributeRetriever;
-import com.cardshifter.modapi.attributes.ECSAttributeMap;
 import com.cardshifter.modapi.base.ECSGame;
 import com.cardshifter.modapi.base.Entity;
 import com.cardshifter.modapi.base.PlayerComponent;
-import com.cardshifter.modapi.resources.ECSResourceMap;
-import com.cardshifter.modapi.resources.ResourceRetriever;
 import com.github.skiwi2.hearthmonitor.commands.Command;
 import com.github.skiwi2.hearthmonitor.commands.FullEntityCommand;
 import com.github.skiwi2.hearthmonitor.commands.TagChangeCommand;
@@ -23,13 +19,10 @@ import com.github.skiwi2.hearthmonitor.logreader.hearthstone.LogLineUtils;
 import com.github.skiwi2.hearthmonitor.logreader.logreaders.FileLogReader;
 import com.github.skiwi2.hearthmonitor.model.Game;
 import com.github.skiwi2.hearthmonitor.model.HearthStoneMod;
-import com.github.skiwi2.hearthmonitor.model.HearthStoneMod.HearthStoneAttribute;
-import com.github.skiwi2.hearthmonitor.model.HearthStoneMod.HearthStoneResource;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +31,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Main application.
@@ -53,17 +45,7 @@ public class HearthMonitor {
         COMMAND_MAP.put(TransitioningLogEntry.class, (ecsGame, logEntry) -> new TransitioningCommand(ecsGame, (TransitioningLogEntry)logEntry));
     }
 
-    private final Path logFile;
-
-    private HearthMonitor(final Path logFile) {
-        this.logFile = Objects.requireNonNull(logFile, "logFile");
-    }
-
-    private void init() throws Exception {
-        List<Game> games = readGamesFromLog(logFile);
-    }
-
-    private static List<Game> readGamesFromLog(final Path logFile) throws Exception {
+    public static List<Game> readGamesFromLog(final Path logFile) throws Exception {
         List<Game> games = new ArrayList<>();
         try (CloseableLogReader logReader = new FileLogReader(
             Files.newBufferedReader(logFile, StandardCharsets.UTF_8),
@@ -123,13 +105,5 @@ public class HearthMonitor {
         PlayerComponent playerComponent = new PlayerComponent(Integer.parseInt(playerId), "PlayerID " + playerId);
         //at a later point we set the actual player name
         entity.addComponent(playerComponent);
-    }
-
-    public static void main(String[] args) throws Exception {
-        if (args.length < 1) {
-            System.out.println("Invalid syntax, expected: <HEARTHSTONE_LOG_FILE_PATH>");
-        }
-        Path path = Paths.get(args[0]);
-        new HearthMonitor(path).init();
     }
 }
