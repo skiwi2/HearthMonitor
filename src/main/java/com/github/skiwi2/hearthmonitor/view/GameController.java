@@ -6,6 +6,7 @@ import com.cardshifter.modapi.base.ECSGame;
 import com.cardshifter.modapi.base.Entity;
 import com.cardshifter.modapi.resources.ECSResourceMap;
 import com.cardshifter.modapi.resources.ResourceRetriever;
+import com.github.skiwi2.hearthmonitor.CardData;
 import com.github.skiwi2.hearthmonitor.commands.Command;
 import com.github.skiwi2.hearthmonitor.model.CardDataComponent;
 import com.github.skiwi2.hearthmonitor.model.Game;
@@ -197,17 +198,19 @@ public class GameController implements Initializable {
     }
 
     private static String getName(final Entity entity) {
-        if (!entity.hasComponent(CardDataComponent.class)) {
+        CardDataComponent cardDataComponent = entity.getComponent(CardDataComponent.class);
+        if (!cardDataComponent.hasCardData()) {
             return "???";
         }
-        return entity.getComponent(CardDataComponent.class).getCardData().getName();
+        return cardDataComponent.getCardData().getName();
     }
 
     private static String getPlayerClass(final Entity entity) {
-        if (!entity.hasComponent(CardDataComponent.class)) {
+        CardDataComponent cardDataComponent = entity.getComponent(CardDataComponent.class);
+        if (!cardDataComponent.hasCardData()) {
             return "???";
         }
-        return entity.getComponent(CardDataComponent.class).getCardData().getPlayerClass().orElse("???");
+        return cardDataComponent.getCardData().getPlayerClass().orElse("???");
     }
 
     private static String getAttackAndHitPointsData(final Entity entity) {

@@ -39,9 +39,11 @@ public class FullEntityCommand extends AbstractCommand {
         newEntity = ecsGame.newEntity();
         ECSResourceMap ecsResourceMap = ECSResourceMap.createFor(newEntity);
         ECSAttributeMap ecsAttributeMap = ECSAttributeMap.createFor(newEntity);
+        CardDataComponent cardDataComponent = new CardDataComponent();
         if (!fullEntityLogEntry.getCardId().isEmpty()) {
-            newEntity.addComponent(new CardDataComponent(CardData.getForCardId(fullEntityLogEntry.getCardId())));
+            cardDataComponent.setCardData(CardData.getForCardId(fullEntityLogEntry.getCardId()));
         }
+        newEntity.addComponent(cardDataComponent);
         fullEntityLogEntry.getTagValues().forEach((tag, value) -> {
             if (HearthStoneMod.isHearthStoneResource(tag)) {
                 ecsResourceMap.set(HearthStoneMod.getHearthStoneResource(tag), Integer.parseInt(value));    //TODO catch NFE for robustness?

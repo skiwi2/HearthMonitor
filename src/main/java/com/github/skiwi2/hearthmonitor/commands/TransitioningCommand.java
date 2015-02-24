@@ -16,7 +16,6 @@ import com.github.skiwi2.hearthmonitor.model.HearthStoneMod.HearthStoneAttribute
 import com.github.skiwi2.hearthmonitor.model.HearthStoneMod.HearthStoneResource;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Command to execute the TransitioningLogEntry on a game.
@@ -28,7 +27,7 @@ public class TransitioningCommand extends AbstractCommand {
     private final TransitioningLogEntry transitioningLogEntry;
 
     private String oldZone;
-    private Optional<CardDataComponent> oldCardDataComponent;
+    private CardData oldCardData;
 
     /**
      * Constructs a new TransitioningCommand instance.
@@ -65,14 +64,11 @@ public class TransitioningCommand extends AbstractCommand {
         oldZone = attributeRetriever.getFor(logEntity);
         attributeRetriever.attrFor(logEntity).set(transitioningLogEntry.getTargetZone());
 
-        oldCardDataComponent = Optional.ofNullable(logEntity.hasComponent(CardDataComponent.class) ? logEntity.getComponent(CardDataComponent.class) : null);
+        oldCardData = logEntity.getComponent(CardDataComponent.class).getCardData();
         if (transitioningLogEntry.getEntity() instanceof CardEntityLogObject) {
             String cardId = ((CardEntityLogObject)transitioningLogEntry.getEntity()).getCardId();
             if (!cardId.isEmpty()) {
-                if (logEntity.hasComponent(CardDataComponent.class)) {
-                    logEntity.removeComponent(CardDataComponent.class);
-                }
-                logEntity.addComponent(new CardDataComponent(CardData.getForCardId(cardId)));
+                logEntity.getComponent(CardDataComponent.class).setCardData(CardData.getForCardId(cardId));
             }
         }
     }
@@ -99,9 +95,6 @@ public class TransitioningCommand extends AbstractCommand {
         AttributeRetriever attributeRetriever = AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE);
         attributeRetriever.attrFor(logEntity).set(oldZone);
 
-        if (logEntity.hasComponent(CardDataComponent.class)) {
-            logEntity.removeComponent(CardDataComponent.class);
-        }
-        oldCardDataComponent.ifPresent(logEntity::addComponent);
+        logEntity.getComponent(CardDataComponent.class).setCardData(oldCardData);
     }
 }
