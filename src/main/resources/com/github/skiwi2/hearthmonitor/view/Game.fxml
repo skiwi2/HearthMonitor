@@ -96,7 +96,7 @@
       </GridPane>
    </center>
    <bottom>
-      <AnchorPane prefHeight="100.0" BorderPane.alignment="CENTER">
+      <AnchorPane maxWidth="800.0" prefHeight="100.0" BorderPane.alignment="BOTTOM_CENTER">
          <children>
             <Button layoutX="14.0" layoutY="38.0" mnemonicParsing="false" onKeyPressed="#handlePreviousButtonKeyPressed" onMousePressed="#handlePreviousButtonMousePressed" prefWidth="75.0" text="Previous" AnchorPane.bottomAnchor="37.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="38.0" />
             <Button layoutX="711.0" layoutY="38.0" mnemonicParsing="false" onKeyPressed="#handleNextButtonKeyPressed" onMousePressed="#handleNextButtonMousePressed" prefWidth="75.0" text="Next" />
