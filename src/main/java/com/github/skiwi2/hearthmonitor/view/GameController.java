@@ -4,9 +4,9 @@ import com.cardshifter.modapi.attributes.AttributeRetriever;
 import com.cardshifter.modapi.attributes.ECSAttributeMap;
 import com.cardshifter.modapi.base.ECSGame;
 import com.cardshifter.modapi.base.Entity;
+import com.cardshifter.modapi.base.PlayerComponent;
 import com.cardshifter.modapi.resources.ECSResourceMap;
 import com.cardshifter.modapi.resources.ResourceRetriever;
-import com.github.skiwi2.hearthmonitor.CardData;
 import com.github.skiwi2.hearthmonitor.commands.Command;
 import com.github.skiwi2.hearthmonitor.model.CardDataComponent;
 import com.github.skiwi2.hearthmonitor.model.Game;
@@ -153,7 +153,8 @@ public class GameController implements Initializable {
             .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), controllerType + " PLAY (Hero)"))
             .forEach(entity -> {
                 int controller = ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getFor(entity);
-                box.getChildren().add(new Label("Hero " + controller + System.lineSeparator() + getPlayerClass(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
+                Entity playerEntity = ecsGame.findEntities(innerEntity -> innerEntity.hasComponent(PlayerComponent.class) && ResourceRetriever.forResource(HearthStoneResource.PLAYER_ID).getFor(innerEntity) == controller).get(0);
+                box.getChildren().add(new Label(playerEntity.getComponent(PlayerComponent.class).getName() + System.lineSeparator() + getPlayerClass(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
             });
 
         ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
