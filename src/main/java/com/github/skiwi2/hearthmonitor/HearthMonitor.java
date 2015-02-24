@@ -1,8 +1,10 @@
 package com.github.skiwi2.hearthmonitor;
 
+import com.cardshifter.modapi.attributes.ECSAttributeMap;
 import com.cardshifter.modapi.base.ECSGame;
 import com.cardshifter.modapi.base.Entity;
 import com.cardshifter.modapi.base.PlayerComponent;
+import com.cardshifter.modapi.resources.ECSResourceMap;
 import com.github.skiwi2.hearthmonitor.commands.ActionStartCommand;
 import com.github.skiwi2.hearthmonitor.commands.Command;
 import com.github.skiwi2.hearthmonitor.commands.FullEntityCommand;
@@ -111,5 +113,17 @@ public class HearthMonitor {
         PlayerComponent playerComponent = new PlayerComponent(Integer.parseInt(playerId), "PlayerID " + playerId);
         //at a later point we set the actual player name
         entity.addComponent(playerComponent);
+
+        ECSResourceMap ecsResourceMap = ECSResourceMap.createFor(entity);
+        ECSAttributeMap ecsAttributeMap = ECSAttributeMap.createFor(entity);
+        playerLogEntry.getTagValues().forEach((tag, value) -> {
+            if (HearthStoneMod.isHearthStoneResource(tag)) {
+                ecsResourceMap.set(HearthStoneMod.getHearthStoneResource(tag), Integer.parseInt(value));    //TODO catch NFE for robustness?
+            } else if (HearthStoneMod.isHearthStoneAttribute(tag)) {
+                ecsAttributeMap.set(HearthStoneMod.getHearthStoneAttribute(tag), value);
+            } else {
+                System.out.println("Tag " + tag + " matches neither a resource nor an attribute.");
+            }
+        });
     }
 }
