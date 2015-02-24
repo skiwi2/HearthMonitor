@@ -220,13 +220,17 @@ public class GameController implements Initializable {
     }
 
     private static String getSpecialEffects(final Entity entity) {
+        int justPlayed = ResourceRetriever.forResource(HearthStoneResource.JUST_PLAYED).getOrDefault(entity, 0);
         int deathrattle = ResourceRetriever.forResource(HearthStoneResource.DEATHRATTLE).getOrDefault(entity, 0);
         int taunt = ResourceRetriever.forResource(HearthStoneResource.TAUNT).getOrDefault(entity, 0);
         int divineShield = ResourceRetriever.forResource(HearthStoneResource.DIVINE_SHIELD).getOrDefault(entity, 0);
         int charge = ResourceRetriever.forResource(HearthStoneResource.CHARGE).getOrDefault(entity, 0);
-        int exhausted = ResourceRetriever.forResource(HearthStoneResource.EXHAUSTED).getOrDefault(entity, 0);
+        int frozen = ResourceRetriever.forResource(HearthStoneResource.FROZEN).getOrDefault(entity, 0);
 
         List<String> effects = new ArrayList<>();
+        if (justPlayed == 1) {
+            effects.add("Just Played");
+        }
         if (deathrattle == 1) {
             effects.add("Deathrattle");
         }
@@ -239,8 +243,8 @@ public class GameController implements Initializable {
         if (charge == 1) {
             effects.add("Charge");
         }
-        if (exhausted == 1) {
-            effects.add("Exhausted");
+        if (frozen == 1) {
+            effects.add("Frozen");
         }
 
         return effects.stream().collect(Collectors.joining(", "));
