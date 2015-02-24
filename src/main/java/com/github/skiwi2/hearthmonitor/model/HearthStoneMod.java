@@ -19,7 +19,7 @@ public class HearthStoneMod implements ECSMod {
     public enum HearthStoneResource implements ECSResource {
         ATK, HEALTH, CONTROLLER, ENTITY_ID, COST, CREATOR, ZONE_POSITION, CANT_PLAY, BATTLECRY,
         PREMIUM, DEATHRATTLE, TAUNT, DIVINE_SHIELD, CHARGE, TRIGGER_VISUAL, FORGETFUL, EXHAUSTED,
-        AURA, SPELLPOWER;
+        AURA, SPELLPOWER, IGNORE_DAMAGE, IGNORE_DAMAGE_OFF, CANT_BE_TARGETED_BY_ABILITIES, CANT_BE_TARGETED_BY_HERO_POWERS;
 
         private static final Map<String, HearthStoneResource> MAPPING =
             Arrays.stream(HearthStoneResource.values())
