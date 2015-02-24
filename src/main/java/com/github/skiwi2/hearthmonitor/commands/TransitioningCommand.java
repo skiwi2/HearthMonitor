@@ -92,7 +92,10 @@ public class TransitioningCommand extends AbstractCommand {
                 int transitioningEntityId = Integer.parseInt(cardEntityLogObject.getId());
                 return (entityId == transitioningEntityId);
             })
-            .findFirst().get();
+            .findFirst().orElse(null);
+        if (logEntity == null) {
+            return; //TODO fix when ActionStartLogEntry entries are getting processed
+        }
         AttributeRetriever attributeRetriever = AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE);
         attributeRetriever.attrFor(logEntity).set(oldZone);
 
