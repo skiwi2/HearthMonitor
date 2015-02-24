@@ -4,6 +4,7 @@ import com.github.skiwi2.hearthmonitor.logreader.EntryParser;
 import com.github.skiwi2.hearthmonitor.logreader.hearthstone.power.ActionStartEntryParser;
 import com.github.skiwi2.hearthmonitor.logreader.hearthstone.power.CreateGameEntryParser;
 import com.github.skiwi2.hearthmonitor.logreader.hearthstone.power.FullEntityEntryParser;
+import com.github.skiwi2.hearthmonitor.logreader.hearthstone.power.ShowEntityEntryParser;
 import com.github.skiwi2.hearthmonitor.logreader.hearthstone.power.TagChangeEntryParser;
 import com.github.skiwi2.hearthmonitor.logreader.hearthstone.zone.TransitioningEntryParser;
 
@@ -28,12 +29,14 @@ public final class EntryParsers {
             FullEntityEntryParser.createFactory(),
             TagChangeEntryParser.createFactory(),
             TransitioningEntryParser.createFactory(),
+            ShowEntityEntryParser.createFactory(),
             ActionStartEntryParser.createFactory(
                 new HashSet<>(Arrays.<EntryParser.Factory<? extends EntryParser>>asList(
                     CreateGameEntryParser.createFactory(),
                     FullEntityEntryParser.createFactory(),
                     TagChangeEntryParser.createFactory(),
-                    TransitioningEntryParser.createFactory()
+                    TransitioningEntryParser.createFactory(),
+                    ShowEntityEntryParser.createFactory()
                 ))
             )
         ));
