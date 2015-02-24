@@ -3,11 +3,13 @@ package com.github.skiwi2.hearthmonitor;
 import com.cardshifter.modapi.base.ECSGame;
 import com.cardshifter.modapi.base.Entity;
 import com.cardshifter.modapi.base.PlayerComponent;
+import com.github.skiwi2.hearthmonitor.commands.ActionStartCommand;
 import com.github.skiwi2.hearthmonitor.commands.Command;
 import com.github.skiwi2.hearthmonitor.commands.FullEntityCommand;
 import com.github.skiwi2.hearthmonitor.commands.TagChangeCommand;
 import com.github.skiwi2.hearthmonitor.commands.TransitioningCommand;
 import com.github.skiwi2.hearthmonitor.logapi.LogEntry;
+import com.github.skiwi2.hearthmonitor.logapi.power.ActionStartLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.CreateGameLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.FullEntityLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.PlayerLogEntry;
@@ -43,6 +45,7 @@ public class HearthMonitor {
         COMMAND_MAP.put(FullEntityLogEntry.class, (ecsGame, logEntry) -> new FullEntityCommand(ecsGame, (FullEntityLogEntry)logEntry));
         COMMAND_MAP.put(TagChangeLogEntry.class, (ecsGame, logEntry) -> new TagChangeCommand(ecsGame, (TagChangeLogEntry)logEntry));
         COMMAND_MAP.put(TransitioningLogEntry.class, (ecsGame, logEntry) -> new TransitioningCommand(ecsGame, (TransitioningLogEntry)logEntry));
+        COMMAND_MAP.put(ActionStartLogEntry.class, (ecsGame, logEntry) -> new ActionStartCommand(ecsGame, (ActionStartLogEntry)logEntry));
     }
 
     public static List<Game> readGamesFromLog(final Path logFile) throws Exception {

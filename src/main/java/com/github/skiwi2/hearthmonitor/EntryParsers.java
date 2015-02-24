@@ -1,6 +1,7 @@
 package com.github.skiwi2.hearthmonitor;
 
 import com.github.skiwi2.hearthmonitor.logreader.EntryParser;
+import com.github.skiwi2.hearthmonitor.logreader.hearthstone.power.ActionStartEntryParser;
 import com.github.skiwi2.hearthmonitor.logreader.hearthstone.power.CreateGameEntryParser;
 import com.github.skiwi2.hearthmonitor.logreader.hearthstone.power.FullEntityEntryParser;
 import com.github.skiwi2.hearthmonitor.logreader.hearthstone.power.TagChangeEntryParser;
@@ -22,11 +23,19 @@ public final class EntryParsers {
     }
 
     private static final Set<EntryParser.Factory<? extends EntryParser>> HEARTHSTONE_ENTRY_PARSER_FACTORIES =
-        new HashSet<>(Arrays.asList(
+        new HashSet<>(Arrays.<EntryParser.Factory<? extends EntryParser>>asList(
             CreateGameEntryParser.createFactory(),
             FullEntityEntryParser.createFactory(),
             TagChangeEntryParser.createFactory(),
-            TransitioningEntryParser.createFactory()
+            TransitioningEntryParser.createFactory(),
+            ActionStartEntryParser.createFactory(
+                new HashSet<>(Arrays.<EntryParser.Factory<? extends EntryParser>>asList(
+                    CreateGameEntryParser.createFactory(),
+                    FullEntityEntryParser.createFactory(),
+                    TagChangeEntryParser.createFactory(),
+                    TransitioningEntryParser.createFactory()
+                ))
+            )
         ));
 
     private static final Set<EntryParser> HEARTHSTONE_ENTRY_PARSERS = HEARTHSTONE_ENTRY_PARSER_FACTORIES.stream()
