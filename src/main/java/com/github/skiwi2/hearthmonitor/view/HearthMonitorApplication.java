@@ -45,6 +45,7 @@ public class HearthMonitorApplication extends Application {
 
         Scene scene = new Scene(root);
         primaryStage.setTitle("HearthMonitor");
+        primaryStage.setMaximized(true);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
