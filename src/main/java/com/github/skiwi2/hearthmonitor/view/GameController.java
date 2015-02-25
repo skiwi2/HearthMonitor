@@ -122,35 +122,37 @@ public class GameController implements Initializable {
     }
 
     private void refreshPlayerBox() {
-        refreshBox(playerBox, "FRIENDLY");
+        refreshBox(playerBox, 1);
     }
 
     private void refreshPlayerHandBox() {
-        refreshHandBox(playerHandBox, "FRIENDLY");
+        refreshHandBox(playerHandBox, 1);
     }
 
     private void refreshPlayerFieldBox() {
-        refreshFieldBox(playerFieldBox, "FRIENDLY");
+        refreshFieldBox(playerFieldBox, 1);
     }
 
     private void refreshOpponentFieldBox() {
-        refreshFieldBox(opponentFieldBox, "OPPOSING");
+        refreshFieldBox(opponentFieldBox, 2);
     }
 
     private void refreshOpponentHandBox() {
-        refreshHandBox(opponentHandBox, "OPPOSING");
+        refreshHandBox(opponentHandBox, 2);
     }
 
     private void refreshOpponentBox() {
-        refreshBox(opponentBox, "OPPOSING");
+        refreshBox(opponentBox, 2);
     }
 
-    private void refreshBox(final VBox box, final String controllerType) {
+    private void refreshBox(final VBox box, final int controllerId) {
         box.getChildren().clear();
 
         ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
             .stream()
-            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), controllerType + " PLAY (Hero)"))
+            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), "PLAY"))
+            .filter(entity -> ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getOrDefault(entity, 0) == controllerId)
+            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "HERO"))
             .forEach(entity -> {
                 int controller = ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getFor(entity);
                 Entity playerEntity = ecsGame.findEntities(innerEntity -> innerEntity.hasComponent(PlayerComponent.class) && ResourceRetriever.forResource(HearthStoneResource.PLAYER_ID).getFor(innerEntity) == controller).get(0);
@@ -159,26 +161,32 @@ public class GameController implements Initializable {
 
         ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
             .stream()
-            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), controllerType + " PLAY (Hero Power)"))
+            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), "PLAY"))
+            .filter(entity -> ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getOrDefault(entity, 0) == controllerId)
+            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "HERO_POWER"))
             .forEach(entity -> {
                 box.getChildren().add(new Label(getName(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
             });
 
-        Long deckRemainingSize = ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
+        long deckRemainingSize = ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
             .stream()
-            .collect(Collectors.groupingBy(entity -> AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getFor(entity), Collectors.counting()))
-            .get(controllerType + " DECK");
-        if (deckRemainingSize != null) {
-            box.getChildren().add(new Label("Deck " + deckRemainingSize.intValue()));
-        }
+            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), "DECK"))
+            .filter(entity -> ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getOrDefault(entity, 0) == controllerId)
+            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "MINION")
+                || Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "ABILITY"))
+            .count();
+        box.getChildren().add(new Label("Deck " + deckRemainingSize));
     }
 
-    private void refreshHandBox(final VBox box, final String controllerType) {
+    private void refreshHandBox(final VBox box, final int controllerId) {
         box.getChildren().clear();
 
         ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
             .stream()
-            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), controllerType + " HAND"))
+            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), "HAND"))
+            .filter(entity -> ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getOrDefault(entity, 0) == controllerId)
+            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "MINION")
+                || Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "ABILITY"))
             .sorted(Comparator.comparingInt(entity -> ResourceRetriever.forResource(HearthStoneResource.ZONE_POSITION).getOrDefault(entity, 0)))
             .forEach(entity -> {
                 box.getChildren().add(new Label(getName(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
@@ -186,12 +194,15 @@ public class GameController implements Initializable {
 
     }
 
-    private void refreshFieldBox(final VBox box, final String controllerType) {
+    private void refreshFieldBox(final VBox box, final int controllerId) {
         box.getChildren().clear();
 
         ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
             .stream()
-            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), controllerType + " PLAY"))
+            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), "PLAY"))
+            .filter(entity -> ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getOrDefault(entity, 0) == controllerId)
+            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "MINION")
+                || Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "ABILITY"))
             .sorted(Comparator.comparingInt(entity -> ResourceRetriever.forResource(HearthStoneResource.ZONE_POSITION).getOrDefault(entity, 0)))
             .forEach(entity -> {
                 box.getChildren().add(new Label(getName(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
