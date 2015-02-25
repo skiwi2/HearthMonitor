@@ -228,6 +228,8 @@ public class GameController implements Initializable {
         int charge = ResourceRetriever.forResource(HearthStoneResource.CHARGE).getOrDefault(entity, 0);
         int frozen = ResourceRetriever.forResource(HearthStoneResource.FROZEN).getOrDefault(entity, 0);
         int stealth = ResourceRetriever.forResource(HearthStoneResource.STEALTH).getOrDefault(entity, 0);
+        int enraged = ResourceRetriever.forResource(HearthStoneResource.ENRAGED).getOrDefault(entity, 0);
+        int windfury = ResourceRetriever.forResource(HearthStoneResource.WINDFURY).getOrDefault(entity, 0);
 
         List<String> effects = new ArrayList<>();
         if (justPlayed == 1) {
@@ -250,6 +252,12 @@ public class GameController implements Initializable {
         }
         if (stealth == 1) {
             effects.add("Stealth");
+        }
+        if (enraged == 1) {
+            effects.add("Enraged");
+        }
+        if (windfury == 1) {
+            effects.add("Windfury");
         }
 
         return effects.stream().collect(Collectors.joining(", "));
