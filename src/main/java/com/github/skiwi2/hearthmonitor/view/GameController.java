@@ -154,7 +154,7 @@ public class GameController implements Initializable {
             .forEach(entity -> {
                 int controller = ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getFor(entity);
                 Entity playerEntity = ecsGame.findEntities(innerEntity -> innerEntity.hasComponent(PlayerComponent.class) && ResourceRetriever.forResource(HearthStoneResource.PLAYER_ID).getFor(innerEntity) == controller).get(0);
-                box.getChildren().add(new Label(playerEntity.getComponent(PlayerComponent.class).getName() + System.lineSeparator() + getPlayerClass(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
+                box.getChildren().add(new Label(playerEntity.getComponent(PlayerComponent.class).getName() + System.lineSeparator() + getPlayerClass(entity) + System.lineSeparator() + getHeroData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
             });
 
         ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
@@ -212,6 +212,13 @@ public class GameController implements Initializable {
             return "???";
         }
         return cardDataComponent.getCardData().getPlayerClass().orElse("???");
+    }
+
+    private static String getHeroData(final Entity entity) {
+        int attack = ResourceRetriever.forResource(HearthStoneResource.ATK).getOrDefault(entity, 0);
+        int health = ResourceRetriever.forResource(HearthStoneResource.HEALTH).getOrDefault(entity, 0);
+        int armor = ResourceRetriever.forResource(HearthStoneResource.ARMOR).getOrDefault(entity, 0);
+        return "ATK " + attack + " / HP " + health + " / ARMOR " + armor;
     }
 
     private static String getAttackAndHitPointsData(final Entity entity) {
