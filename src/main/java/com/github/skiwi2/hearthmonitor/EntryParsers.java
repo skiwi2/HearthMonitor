@@ -28,14 +28,16 @@ public final class EntryParsers {
             CreateGameEntryParser.createFactory(),
             FullEntityEntryParser.createFactory(),
             TagChangeEntryParser.createFactory(),
-            TransitioningEntryParser.createFactory(),
+            //disabled TransitioningLogEntry as it should be covered by tag updates
+//            TransitioningEntryParser.createFactory(),
             ShowEntityEntryParser.createFactory(),
             ActionStartEntryParser.createFactory(
                 new HashSet<>(Arrays.<EntryParser.Factory<? extends EntryParser>>asList(
                     CreateGameEntryParser.createFactory(),
                     FullEntityEntryParser.createFactory(),
                     TagChangeEntryParser.createFactory(),
-                    TransitioningEntryParser.createFactory(),
+                    //disabled TransitioningLogEntry as it should be covered by tag updates
+//                    TransitioningEntryParser.createFactory(),
                     ShowEntityEntryParser.createFactory()
                 ))
             )

@@ -10,7 +10,6 @@ import com.github.skiwi2.hearthmonitor.commands.Command;
 import com.github.skiwi2.hearthmonitor.commands.FullEntityCommand;
 import com.github.skiwi2.hearthmonitor.commands.ShowEntityCommand;
 import com.github.skiwi2.hearthmonitor.commands.TagChangeCommand;
-import com.github.skiwi2.hearthmonitor.commands.TransitioningCommand;
 import com.github.skiwi2.hearthmonitor.logapi.LogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.ActionStartLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.CreateGameLogEntry;
@@ -18,7 +17,6 @@ import com.github.skiwi2.hearthmonitor.logapi.power.FullEntityLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.PlayerLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.ShowEntityLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.TagChangeLogEntry;
-import com.github.skiwi2.hearthmonitor.logapi.zone.TransitioningLogEntry;
 import com.github.skiwi2.hearthmonitor.logreader.CloseableLogReader;
 import com.github.skiwi2.hearthmonitor.logreader.NotReadableException;
 import com.github.skiwi2.hearthmonitor.logreader.hearthstone.LogLineUtils;
@@ -48,7 +46,8 @@ public class HearthMonitor {
     static {
         COMMAND_MAP.put(FullEntityLogEntry.class, (ecsGame, logEntry) -> new FullEntityCommand(ecsGame, (FullEntityLogEntry)logEntry));
         COMMAND_MAP.put(TagChangeLogEntry.class, (ecsGame, logEntry) -> new TagChangeCommand(ecsGame, (TagChangeLogEntry)logEntry));
-        COMMAND_MAP.put(TransitioningLogEntry.class, (ecsGame, logEntry) -> new TransitioningCommand(ecsGame, (TransitioningLogEntry)logEntry));
+        //disabled TransitioningLogEntry as it should be covered by tag updates
+//        COMMAND_MAP.put(TransitioningLogEntry.class, (ecsGame, logEntry) -> new TransitioningCommand(ecsGame, (TransitioningLogEntry)logEntry));
         COMMAND_MAP.put(ShowEntityLogEntry.class, (ecsGame, logEntry) -> new ShowEntityCommand(ecsGame, (ShowEntityLogEntry)logEntry));
         COMMAND_MAP.put(ActionStartLogEntry.class, (ecsGame, logEntry) -> new ActionStartCommand(ecsGame, (ActionStartLogEntry)logEntry));
     }

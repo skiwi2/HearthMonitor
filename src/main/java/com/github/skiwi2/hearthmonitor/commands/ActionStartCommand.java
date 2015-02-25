@@ -6,7 +6,6 @@ import com.github.skiwi2.hearthmonitor.logapi.power.ActionStartLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.FullEntityLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.ShowEntityLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.TagChangeLogEntry;
-import com.github.skiwi2.hearthmonitor.logapi.zone.TransitioningLogEntry;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,7 +25,8 @@ public class ActionStartCommand extends AbstractCommand {
     static {
         COMMAND_MAP.put(FullEntityLogEntry.class, (ecsGame, logEntry) -> new FullEntityCommand(ecsGame, (FullEntityLogEntry)logEntry));
         COMMAND_MAP.put(TagChangeLogEntry.class, (ecsGame, logEntry) -> new TagChangeCommand(ecsGame, (TagChangeLogEntry)logEntry));
-        COMMAND_MAP.put(TransitioningLogEntry.class, (ecsGame, logEntry) -> new TransitioningCommand(ecsGame, (TransitioningLogEntry)logEntry));
+        //disabled TransitioningLogEntry as it should be covered by tag updates
+//        COMMAND_MAP.put(TransitioningLogEntry.class, (ecsGame, logEntry) -> new TransitioningCommand(ecsGame, (TransitioningLogEntry)logEntry));
         COMMAND_MAP.put(ShowEntityLogEntry.class, (ecsGame, logEntry) -> new ShowEntityCommand(ecsGame, (ShowEntityLogEntry)logEntry));
         COMMAND_MAP.put(ActionStartLogEntry.class, (ecsGame, logEntry) -> new ActionStartCommand(ecsGame, (ActionStartLogEntry)logEntry));
     }

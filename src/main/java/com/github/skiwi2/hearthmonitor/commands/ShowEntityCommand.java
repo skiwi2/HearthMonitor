@@ -8,10 +8,12 @@ import com.cardshifter.modapi.base.Entity;
 import com.cardshifter.modapi.resources.ECSResource;
 import com.cardshifter.modapi.resources.ECSResourceMap;
 import com.cardshifter.modapi.resources.ResourceRetriever;
+import com.github.skiwi2.hearthmonitor.CardData;
 import com.github.skiwi2.hearthmonitor.logapi.power.CardEntityLogObject;
 import com.github.skiwi2.hearthmonitor.logapi.power.EntityLogObject;
 import com.github.skiwi2.hearthmonitor.logapi.power.PlayerEntityLogObject;
 import com.github.skiwi2.hearthmonitor.logapi.power.ShowEntityLogEntry;
+import com.github.skiwi2.hearthmonitor.model.CardDataComponent;
 import com.github.skiwi2.hearthmonitor.model.HearthStoneMod;
 
 import java.util.HashMap;
@@ -29,6 +31,8 @@ public class ShowEntityCommand extends AbstractCommand {
 
     private final Map<ECSResource, Integer> oldResourceMapping = new HashMap<>();
     private final Map<ECSAttribute, String> oldAttributeMapping = new HashMap<>();
+
+    private CardData oldCardData;
 
     /**
      * Constructs a new ShowEntityCommand instance.
@@ -79,6 +83,14 @@ public class ShowEntityCommand extends AbstractCommand {
                 System.out.println("Tag " + tag + " matches neither a resource nor an attribute.");
             }
         });
+
+        oldCardData = logEntity.getComponent(CardDataComponent.class).getCardData();
+        if (showEntityLogEntry.getEntity() instanceof CardEntityLogObject) {
+            String cardId = ((CardEntityLogObject)showEntityLogEntry.getEntity()).getCardId();
+            if (!cardId.isEmpty()) {
+                logEntity.getComponent(CardDataComponent.class).setCardData(CardData.getForCardId(cardId));
+            }
+        }
     }
 
     @Override
@@ -103,5 +115,7 @@ public class ShowEntityCommand extends AbstractCommand {
 
         oldResourceMapping.forEach((resource, value) -> ResourceRetriever.forResource(resource).resFor(logEntity).set(value));
         oldAttributeMapping.forEach((attribute, value) -> AttributeRetriever.forAttribute(attribute).attrFor(logEntity).set(value));
+
+        logEntity.getComponent(CardDataComponent.class).setCardData(oldCardData);
     }
 }
