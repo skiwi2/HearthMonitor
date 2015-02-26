@@ -42,6 +42,16 @@ public class TagChangeCommand extends AbstractCommand {
         if (!commandContext.hasEntity(tagChangeLogEntry.getEntity())) {
             addNewEntityCommand = commandContext.createAddEntityCommand(tagChangeLogEntry.getEntity(), this);
             addNewEntityCommand.execute();
+
+            String tag = tagChangeLogEntry.getTag();
+            String value = tagChangeLogEntry.getValue();
+            if (HearthStoneMod.isHearthStoneResource(tag)) {
+                ECSResource resource = HearthStoneMod.HearthStoneResource.getResource(tag);
+                if (resource == HearthStoneMod.HearthStoneResource.ENTITY_ID) {
+                    discoveredEntityCommand = commandContext.createDiscoveredEntityCommand(tagChangeLogEntry.getEntity(), Integer.parseInt(value));
+                    discoveredEntityCommand.execute();
+                }
+            }
             return;
         }
         Entity logEntity = commandContext.getEntity(tagChangeLogEntry.getEntity());
@@ -53,10 +63,6 @@ public class TagChangeCommand extends AbstractCommand {
             ResourceRetriever resourceRetriever = ResourceRetriever.forResource(resource);
             oldResourceValue = resourceRetriever.getOrDefault(logEntity, 0);
             resourceRetriever.resFor(logEntity).set(Integer.parseInt(value));  //TODO catch NPE?
-            if (resource == HearthStoneMod.HearthStoneResource.ENTITY_ID) {
-                discoveredEntityCommand = commandContext.createDiscoveredEntityCommand(tagChangeLogEntry.getEntity(), Integer.parseInt(value));
-                discoveredEntityCommand.execute();
-            }
         } else if (HearthStoneMod.isHearthStoneAttribute(tag)) {
             ECSAttribute attribute = HearthStoneMod.getHearthStoneAttribute(tag);
             AttributeRetriever attributeRetriever = AttributeRetriever.forAttribute(attribute);
@@ -76,9 +82,6 @@ public class TagChangeCommand extends AbstractCommand {
             ECSResource resource = HearthStoneMod.getHearthStoneResource(tag);
             ResourceRetriever resourceRetriever = ResourceRetriever.forResource(resource);
             resourceRetriever.resFor(logEntity).set(oldResourceValue);
-            if (resource == HearthStoneMod.HearthStoneResource.ENTITY_ID) {
-                discoveredEntityCommand.undo();
-            }
         } else if (HearthStoneMod.isHearthStoneAttribute(tag)) {
             ECSAttribute attribute = HearthStoneMod.getHearthStoneAttribute(tag);
             AttributeRetriever attributeRetriever = AttributeRetriever.forAttribute(attribute);
@@ -87,6 +90,7 @@ public class TagChangeCommand extends AbstractCommand {
             System.out.println("Tag " + tag + " matches neither a resource nor an attribute.");
         }
 
+        discoveredEntityCommand.undo();
         addNewEntityCommand.undo();
     }
 }
