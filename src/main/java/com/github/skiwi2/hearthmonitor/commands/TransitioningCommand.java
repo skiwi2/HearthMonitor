@@ -26,6 +26,8 @@ public class TransitioningCommand extends AbstractCommand {
     private final CommandContext commandContext;
     private final TransitioningLogEntry transitioningLogEntry;
 
+    private Command addNewEntityCommand = new EmptyCommand();
+
     private String oldZone;
     private CardData oldCardData;
 
@@ -43,23 +45,13 @@ public class TransitioningCommand extends AbstractCommand {
 
     @Override
     protected void executeImpl() {
-        ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneResource.ENTITY_ID);
-        Entity logEntity = commandContext.getEcsGame().findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
-            .stream()
-            .filter(entity -> {
-                int entityId = entityIdRetriever.getFor(entity);
-                EntityLogObject entityLogObject = transitioningLogEntry.getEntity();
-                if (entityLogObject instanceof PlayerEntityLogObject) {
-                    return false;
-                }
-                CardEntityLogObject cardEntityLogObject = (CardEntityLogObject)entityLogObject;
-                int transitioningEntityId = Integer.parseInt(cardEntityLogObject.getId());
-                return (entityId == transitioningEntityId);
-            })
-            .findFirst().orElse(null);
-        if (logEntity == null) {
-            return; //TODO fix when ActionStartLogEntry entries are getting processed
+        if (!commandContext.hasEntity(transitioningLogEntry.getEntity())) {
+            addNewEntityCommand = commandContext.createAddEntityCommand(transitioningLogEntry.getEntity(), this);
+            addNewEntityCommand.execute();
+            return;
         }
+        Entity logEntity = commandContext.getEntity(transitioningLogEntry.getEntity());
+
         AttributeRetriever attributeRetriever = AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE);
         oldZone = attributeRetriever.getFor(logEntity);
         attributeRetriever.attrFor(logEntity).set(transitioningLogEntry.getTargetZone());
@@ -75,26 +67,13 @@ public class TransitioningCommand extends AbstractCommand {
 
     @Override
     protected void undoImpl() {
-        ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneResource.ENTITY_ID);
-        Entity logEntity = commandContext.getEcsGame().findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
-            .stream()
-            .filter(entity -> {
-                int entityId = entityIdRetriever.getFor(entity);
-                EntityLogObject entityLogObject = transitioningLogEntry.getEntity();
-                if (entityLogObject instanceof PlayerEntityLogObject) {
-                    return false;
-                }
-                CardEntityLogObject cardEntityLogObject = (CardEntityLogObject)entityLogObject;
-                int transitioningEntityId = Integer.parseInt(cardEntityLogObject.getId());
-                return (entityId == transitioningEntityId);
-            })
-            .findFirst().orElse(null);
-        if (logEntity == null) {
-            return; //TODO fix when ActionStartLogEntry entries are getting processed
-        }
+        Entity logEntity = commandContext.getEntity(transitioningLogEntry.getEntity());
+
         AttributeRetriever attributeRetriever = AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE);
         attributeRetriever.attrFor(logEntity).set(oldZone);
 
         logEntity.getComponent(CardDataComponent.class).setCardData(oldCardData);
+
+        addNewEntityCommand.undo();
     }
 }

@@ -32,6 +32,8 @@ public class ShowEntityCommand extends AbstractCommand {
     private final Map<ECSResource, Integer> oldResourceMapping = new HashMap<>();
     private final Map<ECSAttribute, String> oldAttributeMapping = new HashMap<>();
 
+    private Command addNewEntityCommand = new EmptyCommand();
+
     private CardData oldCardData;
 
     /**
@@ -48,23 +50,12 @@ public class ShowEntityCommand extends AbstractCommand {
 
     @Override
     protected void executeImpl() {
-        ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneMod.HearthStoneResource.ENTITY_ID);
-        Entity logEntity = commandContext.getEcsGame().findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
-            .stream()
-            .filter(entity -> {
-                int entityId = entityIdRetriever.getFor(entity);
-                EntityLogObject entityLogObject = showEntityLogEntry.getEntity();
-                if (entityLogObject instanceof PlayerEntityLogObject) {
-                    return false;
-                }
-                CardEntityLogObject cardEntityLogObject = (CardEntityLogObject)entityLogObject;
-                int showEntityEntityId = Integer.parseInt(cardEntityLogObject.getId());
-                return (entityId == showEntityEntityId);
-            })
-            .findFirst().orElse(null);
-        if (logEntity == null) {
-            return; //TODO fix when ActionStartLogEntry entries are getting processed
+        if (!commandContext.hasEntity(showEntityLogEntry.getEntity())) {
+            addNewEntityCommand = commandContext.createAddEntityCommand(showEntityLogEntry.getEntity(), this);
+            addNewEntityCommand.execute();
+            return;
         }
+        Entity logEntity = commandContext.getEntity(showEntityLogEntry.getEntity());
 
         showEntityLogEntry.getTagValues().forEach((tag, value) -> {
             if (HearthStoneMod.isHearthStoneResource(tag)) {
@@ -95,27 +86,13 @@ public class ShowEntityCommand extends AbstractCommand {
 
     @Override
     protected void undoImpl() {
-        ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneMod.HearthStoneResource.ENTITY_ID);
-        Entity logEntity = commandContext.getEcsGame().findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
-            .stream()
-            .filter(entity -> {
-                int entityId = entityIdRetriever.getFor(entity);
-                EntityLogObject entityLogObject = showEntityLogEntry.getEntity();
-                if (entityLogObject instanceof PlayerEntityLogObject) {
-                    return false;
-                }
-                CardEntityLogObject cardEntityLogObject = (CardEntityLogObject)entityLogObject;
-                int showEntityEntityId = Integer.parseInt(cardEntityLogObject.getId());
-                return (entityId == showEntityEntityId);
-            })
-            .findFirst().orElse(null);
-        if (logEntity == null) {
-            return; //TODO fix when ActionStartLogEntry entries are getting processed
-        }
+        Entity logEntity = commandContext.getEntity(showEntityLogEntry.getEntity());
 
         oldResourceMapping.forEach((resource, value) -> ResourceRetriever.forResource(resource).resFor(logEntity).set(value));
         oldAttributeMapping.forEach((attribute, value) -> AttributeRetriever.forAttribute(attribute).attrFor(logEntity).set(value));
 
         logEntity.getComponent(CardDataComponent.class).setCardData(oldCardData);
+
+        addNewEntityCommand.undo();
     }
 }

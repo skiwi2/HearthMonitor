@@ -2,15 +2,9 @@ package com.github.skiwi2.hearthmonitor.commands;
 
 import com.cardshifter.modapi.attributes.AttributeRetriever;
 import com.cardshifter.modapi.attributes.ECSAttribute;
-import com.cardshifter.modapi.attributes.ECSAttributeMap;
-import com.cardshifter.modapi.base.ECSGame;
 import com.cardshifter.modapi.base.Entity;
 import com.cardshifter.modapi.resources.ECSResource;
-import com.cardshifter.modapi.resources.ECSResourceMap;
 import com.cardshifter.modapi.resources.ResourceRetriever;
-import com.github.skiwi2.hearthmonitor.logapi.power.CardEntityLogObject;
-import com.github.skiwi2.hearthmonitor.logapi.power.EntityLogObject;
-import com.github.skiwi2.hearthmonitor.logapi.power.PlayerEntityLogObject;
 import com.github.skiwi2.hearthmonitor.logapi.power.TagChangeLogEntry;
 import com.github.skiwi2.hearthmonitor.model.HearthStoneMod;
 
@@ -24,6 +18,9 @@ import java.util.Objects;
 public class TagChangeCommand extends AbstractCommand {
     private final CommandContext commandContext;
     private final TagChangeLogEntry tagChangeLogEntry;
+
+    private Command addNewEntityCommand = new EmptyCommand();
+    private Command discoveredEntityCommand = new EmptyCommand();
 
     private int oldResourceValue;
     private String oldAttributeValue;
@@ -42,23 +39,12 @@ public class TagChangeCommand extends AbstractCommand {
 
     @Override
     protected void executeImpl() {
-        ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneMod.HearthStoneResource.ENTITY_ID);
-        Entity logEntity = commandContext.getEcsGame().findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
-            .stream()
-            .filter(entity -> {
-                int entityId = entityIdRetriever.getFor(entity);
-                EntityLogObject entityLogObject = tagChangeLogEntry.getEntity();
-                if (entityLogObject instanceof PlayerEntityLogObject) {
-                    return false;
-                }
-                CardEntityLogObject cardEntityLogObject = (CardEntityLogObject)entityLogObject;
-                int tagChangeEntityId = Integer.parseInt(cardEntityLogObject.getId());
-                return (entityId == tagChangeEntityId);
-            })
-            .findFirst().orElse(null);
-        if (logEntity == null) {
-            return; //TODO fix when ActionStartLogEntry entries are getting processed
+        if (!commandContext.hasEntity(tagChangeLogEntry.getEntity())) {
+            addNewEntityCommand = commandContext.createAddEntityCommand(tagChangeLogEntry.getEntity(), this);
+            addNewEntityCommand.execute();
+            return;
         }
+        Entity logEntity = commandContext.getEntity(tagChangeLogEntry.getEntity());
 
         String tag = tagChangeLogEntry.getTag();
         String value = tagChangeLogEntry.getValue();
@@ -67,6 +53,10 @@ public class TagChangeCommand extends AbstractCommand {
             ResourceRetriever resourceRetriever = ResourceRetriever.forResource(resource);
             oldResourceValue = resourceRetriever.getOrDefault(logEntity, 0);
             resourceRetriever.resFor(logEntity).set(Integer.parseInt(value));  //TODO catch NPE?
+            if (resource == HearthStoneMod.HearthStoneResource.ENTITY_ID) {
+                discoveredEntityCommand = commandContext.createDiscoveredEntityCommand(tagChangeLogEntry.getEntity(), Integer.parseInt(value));
+                discoveredEntityCommand.execute();
+            }
         } else if (HearthStoneMod.isHearthStoneAttribute(tag)) {
             ECSAttribute attribute = HearthStoneMod.getHearthStoneAttribute(tag);
             AttributeRetriever attributeRetriever = AttributeRetriever.forAttribute(attribute);
@@ -79,29 +69,16 @@ public class TagChangeCommand extends AbstractCommand {
 
     @Override
     protected void undoImpl() {
-        ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneMod.HearthStoneResource.ENTITY_ID);
-        Entity logEntity = commandContext.getEcsGame().findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
-            .stream()
-            .filter(entity -> {
-                int entityId = entityIdRetriever.getFor(entity);
-                EntityLogObject entityLogObject = tagChangeLogEntry.getEntity();
-                if (entityLogObject instanceof PlayerEntityLogObject) {
-                    return false;
-                }
-                CardEntityLogObject cardEntityLogObject = (CardEntityLogObject)entityLogObject;
-                int tagChangeEntityId = Integer.parseInt(cardEntityLogObject.getId());
-                return (entityId == tagChangeEntityId);
-            })
-            .findFirst().orElse(null);
-        if (logEntity == null) {
-            return; //TODO fix when ActionStartLogEntry entries are getting processed
-        }
+        Entity logEntity = commandContext.getEntity(tagChangeLogEntry.getEntity());
 
         String tag = tagChangeLogEntry.getTag();
         if (HearthStoneMod.isHearthStoneResource(tag)) {
             ECSResource resource = HearthStoneMod.getHearthStoneResource(tag);
             ResourceRetriever resourceRetriever = ResourceRetriever.forResource(resource);
             resourceRetriever.resFor(logEntity).set(oldResourceValue);
+            if (resource == HearthStoneMod.HearthStoneResource.ENTITY_ID) {
+                discoveredEntityCommand.undo();
+            }
         } else if (HearthStoneMod.isHearthStoneAttribute(tag)) {
             ECSAttribute attribute = HearthStoneMod.getHearthStoneAttribute(tag);
             AttributeRetriever attributeRetriever = AttributeRetriever.forAttribute(attribute);
@@ -109,5 +86,7 @@ public class TagChangeCommand extends AbstractCommand {
         } else {
             System.out.println("Tag " + tag + " matches neither a resource nor an attribute.");
         }
+
+        addNewEntityCommand.undo();
     }
 }

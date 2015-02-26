@@ -15,6 +15,7 @@ import com.github.skiwi2.hearthmonitor.logapi.LogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.ActionStartLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.CreateGameLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.FullEntityLogEntry;
+import com.github.skiwi2.hearthmonitor.logapi.power.GameEntityLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.PlayerLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.ShowEntityLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.TagChangeLogEntry;
@@ -95,9 +96,13 @@ public class HearthMonitor {
     }
 
     private static ECSGame createInitialGame(final CreateGameLogEntry createGameLogEntry) {
+        //TODO refactor to a CreateGameCommand?
+
         HearthStoneMod hearthStoneMod = new HearthStoneMod();
         ECSGame initialGame = new ECSGame();
         hearthStoneMod.setupGame(initialGame);
+
+        convertEntityGameLogEntryToEntity(initialGame::newEntity, createGameLogEntry.getGameEntityLogEntry());
 
         Set<PlayerLogEntry> playerLogEntries = createGameLogEntry.getPlayerLogEntries();
         PlayerLogEntry self = playerLogEntries.stream().filter(playerLogEntry -> Objects.equals(playerLogEntry.getTagValue("FIRST_PLAYER"), "1")).findFirst().get();
@@ -107,6 +112,22 @@ public class HearthMonitor {
         convertPlayerLogEntryToEntity(initialGame::newEntity, opponent);
 
         return initialGame;
+    }
+
+    private static void convertEntityGameLogEntryToEntity(final Supplier<Entity> newEntitySupplier, final GameEntityLogEntry createGameLogEntry) {
+        Entity entity = newEntitySupplier.get();
+
+        ECSResourceMap ecsResourceMap = ECSResourceMap.createFor(entity);
+        ECSAttributeMap ecsAttributeMap = ECSAttributeMap.createFor(entity);
+        createGameLogEntry.getTagValues().forEach((tag, value) -> {
+            if (HearthStoneMod.isHearthStoneResource(tag)) {
+                ecsResourceMap.set(HearthStoneMod.getHearthStoneResource(tag), Integer.parseInt(value));    //TODO catch NFE for robustness?
+            } else if (HearthStoneMod.isHearthStoneAttribute(tag)) {
+                ecsAttributeMap.set(HearthStoneMod.getHearthStoneAttribute(tag), value);
+            } else {
+                System.out.println("Tag " + tag + " matches neither a resource nor an attribute.");
+            }
+        });
     }
 
     private static void convertPlayerLogEntryToEntity(final Supplier<Entity> newEntitySupplier, final PlayerLogEntry playerLogEntry) {
