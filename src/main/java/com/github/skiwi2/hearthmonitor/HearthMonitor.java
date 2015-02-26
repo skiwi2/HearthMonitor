@@ -7,6 +7,7 @@ import com.cardshifter.modapi.base.PlayerComponent;
 import com.cardshifter.modapi.resources.ECSResourceMap;
 import com.github.skiwi2.hearthmonitor.commands.ActionStartCommand;
 import com.github.skiwi2.hearthmonitor.commands.Command;
+import com.github.skiwi2.hearthmonitor.commands.CommandContext;
 import com.github.skiwi2.hearthmonitor.commands.FullEntityCommand;
 import com.github.skiwi2.hearthmonitor.commands.ShowEntityCommand;
 import com.github.skiwi2.hearthmonitor.commands.TagChangeCommand;
@@ -42,14 +43,14 @@ import java.util.function.Supplier;
  * @author Frank van Heeswijk
  */
 public class HearthMonitor {
-    private static final Map<Class<?>, BiFunction<ECSGame, LogEntry, Command>> COMMAND_MAP = new HashMap<>();
+    private static final Map<Class<?>, BiFunction<CommandContext, LogEntry, Command>> COMMAND_MAP = new HashMap<>();
     static {
-        COMMAND_MAP.put(FullEntityLogEntry.class, (ecsGame, logEntry) -> new FullEntityCommand(ecsGame, (FullEntityLogEntry)logEntry));
-        COMMAND_MAP.put(TagChangeLogEntry.class, (ecsGame, logEntry) -> new TagChangeCommand(ecsGame, (TagChangeLogEntry)logEntry));
+        COMMAND_MAP.put(FullEntityLogEntry.class, (commandContext, logEntry) -> new FullEntityCommand(commandContext, (FullEntityLogEntry)logEntry));
+        COMMAND_MAP.put(TagChangeLogEntry.class, (commandContext, logEntry) -> new TagChangeCommand(commandContext, (TagChangeLogEntry)logEntry));
         //disabled TransitioningLogEntry as it should be covered by tag updates
-//        COMMAND_MAP.put(TransitioningLogEntry.class, (ecsGame, logEntry) -> new TransitioningCommand(ecsGame, (TransitioningLogEntry)logEntry));
-        COMMAND_MAP.put(ShowEntityLogEntry.class, (ecsGame, logEntry) -> new ShowEntityCommand(ecsGame, (ShowEntityLogEntry)logEntry));
-        COMMAND_MAP.put(ActionStartLogEntry.class, (ecsGame, logEntry) -> new ActionStartCommand(ecsGame, (ActionStartLogEntry)logEntry));
+//        COMMAND_MAP.put(TransitioningLogEntry.class, (commandContext, logEntry) -> new TransitioningCommand(commandContext, (TransitioningLogEntry)logEntry));
+        COMMAND_MAP.put(ShowEntityLogEntry.class, (commandContext, logEntry) -> new ShowEntityCommand(commandContext, (ShowEntityLogEntry)logEntry));
+        COMMAND_MAP.put(ActionStartLogEntry.class, (commandContext, logEntry) -> new ActionStartCommand(commandContext, (ActionStartLogEntry)logEntry));
     }
 
     public static List<Game> readGamesFromLog(final Path logFile) throws Exception {
@@ -60,6 +61,7 @@ public class HearthMonitor {
             LogLineUtils::isFromNamedLogger)
         ) {
             Game lastGame = null;
+            CommandContext lastCommandContext = null;
             while (logReader.hasNextEntry()) {
                 LogEntry logEntry;
                 try {
@@ -71,9 +73,10 @@ public class HearthMonitor {
                     ECSGame initialGame = createInitialGame((CreateGameLogEntry)logEntry);
                     List<Command> commands = new ArrayList<>();
                     lastGame = new Game(initialGame, commands);
+                    lastCommandContext = new CommandContext(initialGame);
                     games.add(lastGame);
                 } else {
-                    if (lastGame == null) {
+                    if (lastGame == null || lastCommandContext == null) {
                         //ignore
                         System.out.println("Ignoring log entry " + logEntry + ", no game has been created yet");
                     }
@@ -82,7 +85,7 @@ public class HearthMonitor {
                             //ignore
                             System.out.println("No mapping has been found for " + logEntry.getClass());
                         }
-                        Command command = COMMAND_MAP.get(logEntry.getClass()).apply(lastGame.getInitialGame(), logEntry);
+                        Command command = COMMAND_MAP.get(logEntry.getClass()).apply(lastCommandContext, logEntry);
                         lastGame.addCommand(command);
                     }
                 }

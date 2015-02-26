@@ -23,7 +23,7 @@ import java.util.Objects;
  * @author Frank van Heeswijk
  */
 public class TransitioningCommand extends AbstractCommand {
-    private final ECSGame ecsGame;
+    private final CommandContext commandContext;
     private final TransitioningLogEntry transitioningLogEntry;
 
     private String oldZone;
@@ -32,19 +32,19 @@ public class TransitioningCommand extends AbstractCommand {
     /**
      * Constructs a new TransitioningCommand instance.
      *
-     * @param ecsGame   The game instance
+     * @param commandContext   The command context
      * @param transitioningLogEntry    The log entry
      * @throws NullPointerException   If transitioningLogEntry is null.
      */
-    public TransitioningCommand(final ECSGame ecsGame, final TransitioningLogEntry transitioningLogEntry) {
-        this.ecsGame = Objects.requireNonNull(ecsGame, "ecsGame");
+    public TransitioningCommand(final CommandContext commandContext, final TransitioningLogEntry transitioningLogEntry) {
+        this.commandContext = Objects.requireNonNull(commandContext, "commandContext");
         this.transitioningLogEntry = Objects.requireNonNull(transitioningLogEntry, "transitioningLogEntry");
     }
 
     @Override
     protected void executeImpl() {
         ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneResource.ENTITY_ID);
-        Entity logEntity = ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
+        Entity logEntity = commandContext.getEcsGame().findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
             .stream()
             .filter(entity -> {
                 int entityId = entityIdRetriever.getFor(entity);
@@ -76,7 +76,7 @@ public class TransitioningCommand extends AbstractCommand {
     @Override
     protected void undoImpl() {
         ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneResource.ENTITY_ID);
-        Entity logEntity = ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
+        Entity logEntity = commandContext.getEcsGame().findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
             .stream()
             .filter(entity -> {
                 int entityId = entityIdRetriever.getFor(entity);

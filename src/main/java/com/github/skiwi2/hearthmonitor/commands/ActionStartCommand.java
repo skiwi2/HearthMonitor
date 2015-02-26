@@ -21,18 +21,18 @@ import java.util.stream.Collectors;
  * @author Frank van Heeswijk
  */
 public class ActionStartCommand extends AbstractCommand {
-    private static final Map<Class<?>, BiFunction<ECSGame, LogEntry, Command>> COMMAND_MAP = new HashMap<>();
+    private static final Map<Class<?>, BiFunction<CommandContext, LogEntry, Command>> COMMAND_MAP = new HashMap<>();
     static {
-        COMMAND_MAP.put(FullEntityLogEntry.class, (ecsGame, logEntry) -> new FullEntityCommand(ecsGame, (FullEntityLogEntry)logEntry));
-        COMMAND_MAP.put(TagChangeLogEntry.class, (ecsGame, logEntry) -> new TagChangeCommand(ecsGame, (TagChangeLogEntry)logEntry));
+        COMMAND_MAP.put(FullEntityLogEntry.class, (commandContext, logEntry) -> new FullEntityCommand(commandContext, (FullEntityLogEntry)logEntry));
+        COMMAND_MAP.put(TagChangeLogEntry.class, (commandContext, logEntry) -> new TagChangeCommand(commandContext, (TagChangeLogEntry)logEntry));
         //disabled TransitioningLogEntry as it should be covered by tag updates
-//        COMMAND_MAP.put(TransitioningLogEntry.class, (ecsGame, logEntry) -> new TransitioningCommand(ecsGame, (TransitioningLogEntry)logEntry));
-        COMMAND_MAP.put(ShowEntityLogEntry.class, (ecsGame, logEntry) -> new ShowEntityCommand(ecsGame, (ShowEntityLogEntry)logEntry));
-        COMMAND_MAP.put(ActionStartLogEntry.class, (ecsGame, logEntry) -> new ActionStartCommand(ecsGame, (ActionStartLogEntry)logEntry));
+//        COMMAND_MAP.put(TransitioningLogEntry.class, (commandContext, logEntry) -> new TransitioningCommand(commandContext, (TransitioningLogEntry)logEntry));
+        COMMAND_MAP.put(ShowEntityLogEntry.class, (commandContext, logEntry) -> new ShowEntityCommand(commandContext, (ShowEntityLogEntry)logEntry));
+        COMMAND_MAP.put(ActionStartLogEntry.class, (commandContext, logEntry) -> new ActionStartCommand(commandContext, (ActionStartLogEntry)logEntry));
     }
     //TODO refactor to a common class to hold the COMMAND_MAP
 
-    private final ECSGame ecsGame;
+    private final CommandContext commandContext;
     private final ActionStartLogEntry actionStartLogEntry;
 
     private List<Command> logEntryCommands;
@@ -40,12 +40,12 @@ public class ActionStartCommand extends AbstractCommand {
     /**
      * Constructs a new ActionStartCommand instance.
      *
-     * @param ecsGame   The game instance
+     * @param commandContext   The command context
      * @param actionStartLogEntry   The log entry
      * @throws  java.lang.NullPointerException  If actionStartLogEntry is null.
      */
-    public ActionStartCommand(final ECSGame ecsGame, final ActionStartLogEntry actionStartLogEntry) {
-        this.ecsGame = Objects.requireNonNull(ecsGame, "ecsGame");
+    public ActionStartCommand(final CommandContext commandContext, final ActionStartLogEntry actionStartLogEntry) {
+        this.commandContext = Objects.requireNonNull(commandContext, "commandContext");
         this.actionStartLogEntry = Objects.requireNonNull(actionStartLogEntry, "actionStartLogEntry");
     }
 
@@ -59,7 +59,7 @@ public class ActionStartCommand extends AbstractCommand {
                     System.out.println("No mapping has been found for " + logEntry.getClass());
                     return null;
                 }
-                return COMMAND_MAP.get(logEntry.getClass()).apply(ecsGame, logEntry);
+                return COMMAND_MAP.get(logEntry.getClass()).apply(commandContext, logEntry);
             })
             .filter(Objects::nonNull)
             .collect(Collectors.toList());

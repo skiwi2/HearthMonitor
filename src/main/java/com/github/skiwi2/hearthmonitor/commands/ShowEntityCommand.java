@@ -26,7 +26,7 @@ import java.util.Objects;
  * @author Frank van Heeswijk
  */
 public class ShowEntityCommand extends AbstractCommand {
-    private final ECSGame ecsGame;
+    private final CommandContext commandContext;
     private final ShowEntityLogEntry showEntityLogEntry;
 
     private final Map<ECSResource, Integer> oldResourceMapping = new HashMap<>();
@@ -37,19 +37,19 @@ public class ShowEntityCommand extends AbstractCommand {
     /**
      * Constructs a new ShowEntityCommand instance.
      *
-     * @param ecsGame   The game instance
+     * @param commandContext   The command context
      * @param showEntityLogEntry    The log entry
      * @throws  java.lang.NullPointerException  If showEntityLogEntry is null.
      */
-    public ShowEntityCommand(final ECSGame ecsGame, final ShowEntityLogEntry showEntityLogEntry) {
-        this.ecsGame = Objects.requireNonNull(ecsGame, "ecsGame");
+    public ShowEntityCommand(final CommandContext commandContext, final ShowEntityLogEntry showEntityLogEntry) {
+        this.commandContext = Objects.requireNonNull(commandContext, "commandContext");
         this.showEntityLogEntry = Objects.requireNonNull(showEntityLogEntry, "showEntityLogEntry");
     }
 
     @Override
     protected void executeImpl() {
         ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneMod.HearthStoneResource.ENTITY_ID);
-        Entity logEntity = ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
+        Entity logEntity = commandContext.getEcsGame().findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
             .stream()
             .filter(entity -> {
                 int entityId = entityIdRetriever.getFor(entity);
@@ -96,7 +96,7 @@ public class ShowEntityCommand extends AbstractCommand {
     @Override
     protected void undoImpl() {
         ResourceRetriever entityIdRetriever = ResourceRetriever.forResource(HearthStoneMod.HearthStoneResource.ENTITY_ID);
-        Entity logEntity = ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
+        Entity logEntity = commandContext.getEcsGame().findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
             .stream()
             .filter(entity -> {
                 int entityId = entityIdRetriever.getFor(entity);

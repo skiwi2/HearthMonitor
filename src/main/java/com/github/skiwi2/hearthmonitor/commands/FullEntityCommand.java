@@ -17,7 +17,7 @@ import java.util.Objects;
  * @author Frank van Heeswijk
  */
 public class FullEntityCommand extends AbstractCommand {
-    private final ECSGame ecsGame;
+    private final CommandContext commandContext;
     private final FullEntityLogEntry fullEntityLogEntry;
 
     private Entity newEntity;
@@ -25,18 +25,18 @@ public class FullEntityCommand extends AbstractCommand {
     /**
      * Constructs a new FullEntityCommand instance.
      *
-     * @param ecsGame   The game instance
+     * @param commandContext   The command context
      * @param fullEntityLogEntry    The log entry
      * @throws java.lang.NullPointerException   If fullEntityLogEntry is null.
      */
-    public FullEntityCommand(final ECSGame ecsGame, final FullEntityLogEntry fullEntityLogEntry) {
-        this.ecsGame = Objects.requireNonNull(ecsGame, "ecsGame");
+    public FullEntityCommand(final CommandContext commandContext, final FullEntityLogEntry fullEntityLogEntry) {
+        this.commandContext = Objects.requireNonNull(commandContext, "commandContext");
         this.fullEntityLogEntry = Objects.requireNonNull(fullEntityLogEntry, "fullEntityLogEntry");
     }
 
     @Override
     protected void executeImpl() {
-        newEntity = ecsGame.newEntity();
+        newEntity = commandContext.getEcsGame().newEntity();
         ECSResourceMap ecsResourceMap = ECSResourceMap.createFor(newEntity);
         ECSAttributeMap ecsAttributeMap = ECSAttributeMap.createFor(newEntity);
         CardDataComponent cardDataComponent = new CardDataComponent();
