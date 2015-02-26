@@ -23,7 +23,14 @@ public class HearthStoneMod implements ECSMod {
         NUM_TURNS_IN_PLAY, JUST_PLAYED, NUM_ATTACKS_THIS_TURN, DAMAGE, FROZEN, SECRET, POWERED_UP, CARD_TARGET,
         ATTACHED, LAST_AFFECTED_BY, FREEZE, DISPLAYED_CREATOR, STEALTH, CANT_BE_ATTACKED,
         ELITE, CANT_BE_TARGETED_BY_OPPONENTS, STARTHANDSIZE, MAXHANDSIZE, HERO_ENTITY, NUM_TURNS_LEFT, FIRST_PLAYER,
-        CURRENT_PLAYER, PLAYER_ID, TIMEOUT, TEAM_ID, MAXRESOURCES, ENRAGED, WINDFURY, ADJACENT_BUFF, ARMOR;
+        CURRENT_PLAYER, PLAYER_ID, TIMEOUT, TEAM_ID, MAXRESOURCES, ENRAGED, WINDFURY, ADJACENT_BUFF, ARMOR,
+        TURN, NUM_MINIONS_KILLED_THIS_TURN, TURN_START,
+        _10{
+            @Override
+            public String toString() {
+                return "10";
+            }
+        };
 
         private static final Map<String, HearthStoneResource> MAPPING =
             Arrays.stream(HearthStoneResource.values())
@@ -41,7 +48,7 @@ public class HearthStoneMod implements ECSMod {
     }
 
     public enum HearthStoneAttribute implements ECSAttribute {
-        ZONE, FACTION, CARDTYPE, RARITY, CLASS, PLAYSTATE;
+        ZONE, FACTION, CARDTYPE, RARITY, CLASS, PLAYSTATE, NEXT_STEP, STATE, STEP;
 
         private static final Map<String, HearthStoneAttribute> MAPPING =
             Arrays.stream(HearthStoneAttribute.values())
