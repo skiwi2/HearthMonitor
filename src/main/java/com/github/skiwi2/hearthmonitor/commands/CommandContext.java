@@ -3,6 +3,7 @@ package com.github.skiwi2.hearthmonitor.commands;
 import com.cardshifter.modapi.attributes.ECSAttributeMap;
 import com.cardshifter.modapi.base.ECSGame;
 import com.cardshifter.modapi.base.Entity;
+import com.cardshifter.modapi.base.PlayerComponent;
 import com.cardshifter.modapi.resources.ECSResourceMap;
 import com.cardshifter.modapi.resources.ResourceRetriever;
 import com.github.skiwi2.hearthmonitor.logapi.power.CardEntityLogObject;
@@ -109,11 +110,18 @@ public class CommandContext {
                 return new EmptyCommand();
             }
             return new AbstractCommand() {
+                private String oldName = "";
                 private List<Command> commands = new ArrayList<>();
 
                 @Override
                 protected void executeImpl() {
                     playerEntityIdMap.put(name, entityId);
+                    Entity entity = getEntityWithId(entityId);
+                    if (entity.hasComponent(PlayerComponent.class)) {
+                        PlayerComponent playerComponent = entity.getComponent(PlayerComponent.class);
+                        oldName = playerComponent.getName();
+                        playerComponent.setName(name);
+                    }
                     commands.addAll(queuedPlayerCommands.get(name));
                     commands.forEach(Command::execute);
                     queuedPlayerCommands.get(name).clear();
@@ -125,6 +133,11 @@ public class CommandContext {
                     Collections.reverse(commands);
                     commands.forEach(Command::undo);
                     commands.clear();
+                    Entity entity = getEntityWithId(entityId);
+                    if (entity.hasComponent(PlayerComponent.class)) {
+                        PlayerComponent playerComponent = entity.getComponent(PlayerComponent.class);
+                        playerComponent.setName(oldName);
+                    }
                     playerEntityIdMap.remove(name);
                 }
             };
