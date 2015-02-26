@@ -172,8 +172,6 @@ public class GameController implements Initializable {
             .stream()
             .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), "DECK"))
             .filter(entity -> ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getOrDefault(entity, 0) == controllerId)
-            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "MINION")
-                || Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "ABILITY"))
             .count();
         box.getChildren().add(new Label("Deck " + deckRemainingSize));
     }
