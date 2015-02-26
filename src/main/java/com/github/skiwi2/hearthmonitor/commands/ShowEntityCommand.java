@@ -2,16 +2,11 @@ package com.github.skiwi2.hearthmonitor.commands;
 
 import com.cardshifter.modapi.attributes.AttributeRetriever;
 import com.cardshifter.modapi.attributes.ECSAttribute;
-import com.cardshifter.modapi.attributes.ECSAttributeMap;
-import com.cardshifter.modapi.base.ECSGame;
 import com.cardshifter.modapi.base.Entity;
 import com.cardshifter.modapi.resources.ECSResource;
-import com.cardshifter.modapi.resources.ECSResourceMap;
 import com.cardshifter.modapi.resources.ResourceRetriever;
 import com.github.skiwi2.hearthmonitor.CardData;
 import com.github.skiwi2.hearthmonitor.logapi.power.CardEntityLogObject;
-import com.github.skiwi2.hearthmonitor.logapi.power.EntityLogObject;
-import com.github.skiwi2.hearthmonitor.logapi.power.PlayerEntityLogObject;
 import com.github.skiwi2.hearthmonitor.logapi.power.ShowEntityLogEntry;
 import com.github.skiwi2.hearthmonitor.model.CardDataComponent;
 import com.github.skiwi2.hearthmonitor.model.HearthStoneMod;
@@ -51,7 +46,17 @@ public class ShowEntityCommand extends AbstractCommand {
     @Override
     protected void executeImpl() {
         if (!commandContext.hasEntity(showEntityLogEntry.getEntity())) {
-            addNewEntityCommand = commandContext.createAddEntityCommand(showEntityLogEntry.getEntity(), this);
+            addNewEntityCommand = commandContext.createAddEntityCommand(showEntityLogEntry.getEntity(), new AbstractCommand() {
+                @Override
+                protected void executeImpl() {
+                    ShowEntityCommand.this.executeImpl();
+                }
+
+                @Override
+                protected void undoImpl() {
+                    ShowEntityCommand.this.undoImpl();
+                }
+            });
             addNewEntityCommand.execute();
             return;
         }

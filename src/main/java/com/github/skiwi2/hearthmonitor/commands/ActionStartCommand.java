@@ -1,6 +1,5 @@
 package com.github.skiwi2.hearthmonitor.commands;
 
-import com.cardshifter.modapi.base.ECSGame;
 import com.github.skiwi2.hearthmonitor.logapi.LogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.ActionStartLogEntry;
 import com.github.skiwi2.hearthmonitor.logapi.power.FullEntityLogEntry;

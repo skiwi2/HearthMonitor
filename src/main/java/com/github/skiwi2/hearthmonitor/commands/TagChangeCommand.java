@@ -40,7 +40,17 @@ public class TagChangeCommand extends AbstractCommand {
     @Override
     protected void executeImpl() {
         if (!commandContext.hasEntity(tagChangeLogEntry.getEntity())) {
-            addNewEntityCommand = commandContext.createAddEntityCommand(tagChangeLogEntry.getEntity(), this);
+            addNewEntityCommand = commandContext.createAddEntityCommand(tagChangeLogEntry.getEntity(), new AbstractCommand() {
+                @Override
+                protected void executeImpl() {
+                    TagChangeCommand.this.executeImpl();
+                }
+
+                @Override
+                protected void undoImpl() {
+                    TagChangeCommand.this.undoImpl();
+                }
+            });
             addNewEntityCommand.execute();
 
             String tag = tagChangeLogEntry.getTag();
