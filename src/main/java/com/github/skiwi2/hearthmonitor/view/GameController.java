@@ -226,14 +226,16 @@ public class GameController implements Initializable {
     private static String getHeroData(final Entity entity) {
         int attack = ResourceRetriever.forResource(HearthStoneResource.ATK).getOrDefault(entity, 0);
         int health = ResourceRetriever.forResource(HearthStoneResource.HEALTH).getOrDefault(entity, 0);
+        int damage = ResourceRetriever.forResource(HearthStoneResource.DAMAGE).getOrDefault(entity, 0);
         int armor = ResourceRetriever.forResource(HearthStoneResource.ARMOR).getOrDefault(entity, 0);
-        return "ATK " + attack + " / HP " + health + " / ARMOR " + armor;
+        return "ATK " + attack + " / HP " + (health - damage) + " / ARMOR " + armor;
     }
 
     private static String getAttackAndHitPointsData(final Entity entity) {
         int attack = ResourceRetriever.forResource(HearthStoneResource.ATK).getOrDefault(entity, 0);
         int health = ResourceRetriever.forResource(HearthStoneResource.HEALTH).getOrDefault(entity, 0);
-        return "ATK " + attack + " / HP " + health;
+        int damage = ResourceRetriever.forResource(HearthStoneResource.DAMAGE).getOrDefault(entity, 0);
+        return "ATK " + attack + " / HP " + (health - damage);
     }
 
     private static String getSpecialEffects(final Entity entity) {
