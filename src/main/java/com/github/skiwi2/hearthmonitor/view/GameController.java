@@ -183,9 +183,6 @@ public class GameController implements Initializable {
             .stream()
             .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), "HAND"))
             .filter(entity -> ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getOrDefault(entity, 0) == controllerId)
-            .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "MINION")
-                || Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "ABILITY")
-                || Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), ""))
             .sorted(Comparator.comparingInt(entity -> ResourceRetriever.forResource(HearthStoneResource.ZONE_POSITION).getOrDefault(entity, 0)))
             .forEach(entity -> {
                 box.getChildren().add(new Label(getName(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
