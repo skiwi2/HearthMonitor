@@ -280,7 +280,7 @@ public class GameController implements Initializable {
             effects.add("Windfury");
         }
         if (exhausted == 1) {
-            effects.add("Exhaused");
+            effects.add("Exhausted");
         }
 
         return effects.stream().collect(Collectors.joining(", "));
