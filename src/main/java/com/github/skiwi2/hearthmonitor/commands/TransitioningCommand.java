@@ -38,7 +38,7 @@ public class TransitioningCommand extends AbstractCommand {
 
     @Override
     protected void executeImpl() {
-        if (!commandContext.hasEntity(transitioningLogEntry.getEntity())) {
+        if (!commandContext.shouldHaveEntity(transitioningLogEntry.getEntity())) {
             addNewEntityCommand = commandContext.createAddEntityCommand(transitioningLogEntry.getEntity(), new AbstractCommand() {
                 @Override
                 protected void executeImpl() {

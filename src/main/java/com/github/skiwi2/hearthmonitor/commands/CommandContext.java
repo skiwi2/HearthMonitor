@@ -38,12 +38,33 @@ public class CommandContext {
         return ecsGame;
     }
 
-    public boolean hasEntity(final EntityLogObject entityLogObject) {
+    public boolean shouldHaveEntity(final EntityLogObject entityLogObject) {
         if (entityLogObject instanceof PlayerEntityLogObject) {
-            return playerEntityIdMap.containsKey(((PlayerEntityLogObject)entityLogObject).getName());
+            String name = ((PlayerEntityLogObject)entityLogObject).getName();
+            if (name.chars().allMatch(Character::isDigit)) {
+                //refers to an entity id
+                return true;
+            }
+            return playerEntityIdMap.containsKey(name);
         }
         else if (entityLogObject instanceof CardEntityLogObject) {
             return true;
+        } else {
+            throw new IllegalArgumentException("cannot handle class of entityLogObject: " + entityLogObject.getClass());
+        }
+    }
+
+    public boolean hasEntity(final EntityLogObject entityLogObject) {
+        if (entityLogObject instanceof PlayerEntityLogObject) {
+            String name = ((PlayerEntityLogObject)entityLogObject).getName();
+            if (name.chars().allMatch(Character::isDigit)) {
+                //refers to an entity id
+                return hasEntityWithId(Integer.parseInt(name));
+            }
+            return playerEntityIdMap.containsKey(name);
+        }
+        else if (entityLogObject instanceof CardEntityLogObject) {
+            return hasEntityWithId(Integer.parseInt(((CardEntityLogObject)entityLogObject).getId()));
         } else {
             throw new IllegalArgumentException("cannot handle class of entityLogObject: " + entityLogObject.getClass());
         }
@@ -56,6 +77,10 @@ public class CommandContext {
         if (entityLogObject instanceof PlayerEntityLogObject) {
             PlayerEntityLogObject playerEntityLogObject = (PlayerEntityLogObject)entityLogObject;
             String name = playerEntityLogObject.getName();
+            if (name.chars().allMatch(Character::isDigit)) {
+                //refers to an entity id
+                return new EmptyCommand();
+            }
             return new AbstractCommand() {
                 @Override
                 protected void executeImpl() {
@@ -81,6 +106,10 @@ public class CommandContext {
         if (entityLogObject instanceof PlayerEntityLogObject) {
             PlayerEntityLogObject playerEntityLogObject = (PlayerEntityLogObject)entityLogObject;
             String playerName = playerEntityLogObject.getName();
+            if (playerName.chars().allMatch(Character::isDigit)) {
+                //refers to an entity id
+                return getEntityWithId(Integer.parseInt(playerName));
+            }
             if (!playerEntityIdMap.containsKey(playerName)) {
                 throw new IllegalStateException("player " + playerName + " has no known entity id");
             }
@@ -102,9 +131,19 @@ public class CommandContext {
             .findFirst().get();
     }
 
+    public boolean hasEntityWithId(final int entityId) {
+        return ecsGame.findEntities(entity -> (entity.hasComponent(ECSResourceMap.class) && entity.hasComponent(ECSAttributeMap.class)))
+            .stream()
+            .anyMatch(entity -> ResourceRetriever.forResource(HearthStoneResource.ENTITY_ID).getOrDefault(entity, 0) == entityId);
+    }
+
     public Command createDiscoveredEntityCommand(final EntityLogObject entityLogObject, final int entityId) {
         if (entityLogObject instanceof PlayerEntityLogObject) {
             String name = ((PlayerEntityLogObject)entityLogObject).getName();
+            if (name.chars().allMatch(Character::isDigit)) {
+                //refers to an entity id, ignore this
+                return new EmptyCommand();
+            }
             if (playerEntityIdMap.containsKey(name)) {
                 //nothing to update
                 return new EmptyCommand();

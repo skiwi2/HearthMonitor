@@ -45,7 +45,7 @@ public class ShowEntityCommand extends AbstractCommand {
 
     @Override
     protected void executeImpl() {
-        if (!commandContext.hasEntity(showEntityLogEntry.getEntity())) {
+        if (!commandContext.shouldHaveEntity(showEntityLogEntry.getEntity())) {
             addNewEntityCommand = commandContext.createAddEntityCommand(showEntityLogEntry.getEntity(), new AbstractCommand() {
                 @Override
                 protected void executeImpl() {
