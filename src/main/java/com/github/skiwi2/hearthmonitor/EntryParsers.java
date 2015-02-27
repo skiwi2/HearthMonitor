@@ -39,7 +39,8 @@ public final class EntryParsers {
                     //disabled TransitioningLogEntry as it should be covered by tag updates
 //                    TransitioningEntryParser.createFactory(),
                     ShowEntityEntryParser.createFactory()
-                ))
+                )),
+                ex -> { }
             )
         ));
 
