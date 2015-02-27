@@ -270,7 +270,7 @@ public class GameController implements Initializable {
             effects.add("Stealth");
         }
         if (enraged == 1) {
-            effects.add("Enraged");
+            effects.add("Enrage");
         }
         if (windfury == 1) {
             effects.add("Windfury");
