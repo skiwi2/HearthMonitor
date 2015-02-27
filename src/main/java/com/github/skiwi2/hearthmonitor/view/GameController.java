@@ -184,7 +184,8 @@ public class GameController implements Initializable {
             .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.ZONE).getOrDefault(entity, ""), "HAND"))
             .filter(entity -> ResourceRetriever.forResource(HearthStoneResource.CONTROLLER).getOrDefault(entity, 0) == controllerId)
             .filter(entity -> Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "MINION")
-                || Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "ABILITY"))
+                || Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), "ABILITY")
+                || Objects.equals(AttributeRetriever.forAttribute(HearthStoneAttribute.CARDTYPE).getOrDefault(entity, ""), ""))
             .sorted(Comparator.comparingInt(entity -> ResourceRetriever.forResource(HearthStoneResource.ZONE_POSITION).getOrDefault(entity, 0)))
             .forEach(entity -> {
                 box.getChildren().add(new Label(getName(entity) + System.lineSeparator() + getAttackAndHitPointsData(entity) + System.lineSeparator() + getSpecialEffects(entity)));
@@ -248,6 +249,7 @@ public class GameController implements Initializable {
         int stealth = ResourceRetriever.forResource(HearthStoneResource.STEALTH).getOrDefault(entity, 0);
         int enraged = ResourceRetriever.forResource(HearthStoneResource.ENRAGED).getOrDefault(entity, 0);
         int windfury = ResourceRetriever.forResource(HearthStoneResource.WINDFURY).getOrDefault(entity, 0);
+        int exhausted = ResourceRetriever.forResource(HearthStoneResource.EXHAUSTED).getOrDefault(entity, 0);
 
         List<String> effects = new ArrayList<>();
         if (justPlayed == 1) {
@@ -276,6 +278,9 @@ public class GameController implements Initializable {
         }
         if (windfury == 1) {
             effects.add("Windfury");
+        }
+        if (exhausted == 1) {
+            effects.add("Exhaused");
         }
 
         return effects.stream().collect(Collectors.joining(", "));
