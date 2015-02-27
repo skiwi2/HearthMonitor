@@ -82,7 +82,7 @@ public class ShowEntityCommand extends AbstractCommand {
 
         oldCardData = logEntity.getComponent(CardDataComponent.class).getCardData();
         if (showEntityLogEntry.getEntity() instanceof CardEntityLogObject) {
-            String cardId = ((CardEntityLogObject)showEntityLogEntry.getEntity()).getCardId();
+            String cardId = showEntityLogEntry.getCardId();
             if (!cardId.isEmpty()) {
                 logEntity.getComponent(CardDataComponent.class).setCardData(CardData.getForCardId(cardId));
             }
